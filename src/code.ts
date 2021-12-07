@@ -1,4 +1,8 @@
-import { AllTestsFrame } from "./figmaClasses/AllTestsFrame";
+import { Mendelsohn } from "./figmaClasses/Mendelsohn";
+import { TestGroup } from "./figmaClasses/TestGroup";
+
+const mendelsohn = new Mendelsohn();
+mendelsohn.initialize();
 
 const screenshotFidelity = 1; // 1 is 1:1 pixel size
 const testPageName = "VRT Testing";
@@ -10,7 +14,7 @@ const failingTestPrefix = "🛑 FAIL ";
 const LAYOUT_GUTTER = 60; // make configurable
 let testPage = null;
 
-const allTestsFrame = new AllTestsFrame(figma.currentPage);
+const allTestsFrame = new TestGroup(figma.currentPage);
 
 const findOrCreateTestPage = () => {
   testPage = figma.root.findOne((p) => p.name === testPageName);
@@ -222,7 +226,7 @@ const initialize = () => {
   figma.on("selectionchange", sendCurrentSelectionToUi);
 };
 
-initialize();
+// initialize();
 // launchUi();
 
 figma.ui.onmessage = (message) => {
@@ -232,6 +236,9 @@ figma.ui.onmessage = (message) => {
       break;
     case "create-test":
       createTest(message.data);
+      break;
+    case "create-tests-from-current-selection":
+      mendelsohn.createTestsFromCurrentSelection();
       break;
     case "diff-created":
       console.log("Diff Created", message.data);
@@ -255,7 +262,7 @@ figma.ui.onmessage = (message) => {
 */
 
 /* On load:
- *  get or create VRT Test Page ✅
+ *  scan for all TestsGroupFrames as children of Pages ✅
  *  get current baseline frames ✅
  *  get current selection -> send selection to UI
  *  on selection change -> send selection to UI

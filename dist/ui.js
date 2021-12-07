@@ -910,28 +910,35 @@
     }
     renderEmptyState() {
       return p`<!-- Nothing selected -->
-                <p>Select one or more objects to create a test.</p>
-                <!-- something selected state-->
-                <div>
-                  <!-- List of selected objects, scrollable? -->
-                  <ul>
-                    ${this.currentselection.map((fNode) => p`<li>${fNode.name} -${fNode.id}</li>`)}
-                  </ul>
-                  <!-- List of actions to take -->
-                  <ul>
-                    <li><a href="onpage">Create test on this page</a></li>
-                    <li><a href="newpage">Create test on separate page</a></li>
-                  </ul>
-                </div>`;
+      <p>Select one or more objects to create a test.</p>
+      <!-- something selected state-->
+      <div>
+        <!-- List of selected objects, scrollable? -->
+        <ul>
+          ${this.currentselection.map((fNode) => p`<li>${fNode.name} -${fNode.id}</li>`)}
+        </ul>
+        <!-- List of actions to take -->
+        ${this.currentselection.length > 0 ? p` <ul>
+              <li>
+                <button @click=${this._createTestsFromSelection}>
+                  Create tests from selection
+                </button>
+              </li>
+            </ul>` : ""}
+      </div>`;
     }
     renderList() {
       return p`
       <h1>Tests</h1>
       <ul>
-        ${this.baselineframes.map((fNode) => p`
-          <li>
+        ${this.baselineframes.map((fNode) => p` <li>
             <span>${fNode.name}</span>
-            <m-button @click=${this._requestTest} data-baselineframeid=${fNode.id} data-originnodeid=${fNode.originNodeId}>▶️</m-button>
+            <m-button
+              @click=${this._requestTest}
+              data-baselineframeid=${fNode.id}
+              data-originnodeid=${fNode.originNodeId}
+              >▶️</m-button
+            >
           </li>`)}
       </ul>
     `;
@@ -939,9 +946,10 @@
     render() {
       return p`<div>
       ${this.baselineframes.length === 0 ? this.renderEmptyState() : this.renderList()}
-      <button @click="${this._changeView}" data-view="tutorial">Show Tutorial</button>
-    </div>
-`;
+      <button @click="${this._changeView}" data-view="tutorial">
+        Show Tutorial
+      </button>
+    </div> `;
     }
     _changeView(e5) {
       const target = e5.target;
@@ -963,10 +971,17 @@
         }
       }, "*");
     }
+    _createTestsFromSelection(e5) {
+      window.parent.postMessage({
+        pluginMessage: {
+          type: "create-tests-from-current-selection"
+        }
+      }, "*");
+    }
   };
   TestList.styles = r`
     * {
-      font-family: 'Inter', sans-serif;
+      font-family: "Inter", sans-serif;
       font-size: 12px;
     }
 
@@ -999,24 +1014,32 @@
       this.view = "test-list";
       this.currentselection = [];
       this.baselineframes = [];
+      this.testgroupframes = [];
     }
     render() {
       let viewOutput;
       switch (this.view) {
         case "test-list":
-          viewOutput = p`
-          <test-list currentselection=${JSON.stringify(this.currentselection)} baselineframes=${JSON.stringify(this.baselineframes)}></test-list>`;
+          viewOutput = p` <test-list
+          currentselection=${JSON.stringify(this.currentselection)}
+          baselineframes=${JSON.stringify(this.baselineframes)}
+          testgroupframes=${JSON.stringify(this.testgroupframes)}
+        ></test-list>`;
           break;
         case "tutorial":
-          viewOutput = p`
-        <div>
+          viewOutput = p` <div>
           <h1>Tutorial</h1>
-          <button @click="${this._changeView}" data-view="test-list">Show Create Tests</button>
+          <button @click="${this._changeView}" data-view="test-list">
+            Show Create Tests
+          </button>
         </div>`;
           break;
       }
       return p`
-      <div @changeview=${this._changeViewListener} @postmessage=${this._handlePostMessage}>
+      <div
+        @changeview=${this._changeViewListener}
+        @postmessage=${this._handlePostMessage}
+      >
         ${viewOutput}
       </div>
     `;
@@ -1046,6 +1069,9 @@
   __decorateClass([
     e4({ type: Array })
   ], ViewportManager.prototype, "baselineframes", 2);
+  __decorateClass([
+    e4({ type: Array })
+  ], ViewportManager.prototype, "testgroupframes", 2);
   ViewportManager = __decorateClass([
     n5("viewport-manager")
   ], ViewportManager);
@@ -1060,6 +1086,10 @@
         break;
       case "baseline-frames-changed":
         viewportManager.baselineframes = message.data.pluginMessage.data;
+        break;
+      case "test-group-frames-update":
+        viewportManager.testgroupframes = message.data.pluginMessage.data;
+        console.log(message.data.pluginMessage.data);
         break;
       case "get-image-diff":
         console.log("switch gid");

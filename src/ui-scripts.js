@@ -13,6 +13,10 @@ onmessage = async (message) => {
     case "baseline-frames-changed":
       viewportManager.baselineframes = message.data.pluginMessage.data;
       break;
+    case "test-group-frames-update":
+      viewportManager.testgroupframes = message.data.pluginMessage.data;
+      console.log(message.data.pluginMessage.data);
+      break;
     case "get-image-diff":
       console.log("switch gid");
       const diffData = await imageProcessor.getImageDiff(
