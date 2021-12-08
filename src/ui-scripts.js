@@ -8,6 +8,7 @@ const imageProcessor = document.querySelector("image-processor");
 onmessage = async (message) => {
   switch (message.data.pluginMessage.type) {
     case "current-selection-changed":
+      viewportManager.view = "test-list";
       viewportManager.currentselection = message.data.pluginMessage.data;
       break;
     case "baseline-frames-changed":
@@ -16,6 +17,10 @@ onmessage = async (message) => {
     case "test-group-frames-update":
       viewportManager.testgroupframes = message.data.pluginMessage.data;
       console.log(message.data.pluginMessage.data);
+      break;
+    case "active-test-wrapper-changed":
+      viewportManager.view = "test-detail";
+      viewportManager.activetestwrapper = message.data.pluginMessage.data;
       break;
     case "get-image-diff":
       console.log("switch gid");

@@ -1,6 +1,7 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import "./test-list";
+import "./test-detail";
 
 @customElement("viewport-manager")
 class ViewportManager extends LitElement {
@@ -16,6 +17,9 @@ class ViewportManager extends LitElement {
   @property({ type: Array })
   testgroupframes = [];
 
+  @property({ type: Object })
+  activetestwrapper = {};
+
   render() {
     let viewOutput;
 
@@ -26,6 +30,11 @@ class ViewportManager extends LitElement {
           baselineframes=${JSON.stringify(this.baselineframes)}
           testgroupframes=${JSON.stringify(this.testgroupframes)}
         ></test-list>`;
+        break;
+      case "test-detail":
+        viewOutput = html`<test-detail
+          name=${this.activetestwrapper.name}
+        ></test-detail>`;
         break;
       case "tutorial":
         viewOutput = html` <div>
