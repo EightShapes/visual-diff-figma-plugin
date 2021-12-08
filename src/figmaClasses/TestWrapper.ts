@@ -117,8 +117,10 @@ export class TestWrapper {
     ];
     const placeholderText = figma.createText();
     placeholderText.fontName = Mendelsohn.DEFAULT_FONT;
-    placeholderText.fontSize = TestWrapper.TITLE_FONT_SIZE;
+    placeholderText.fontSize = 12;
     placeholderText.characters = "No results, test not yet run.";
+    placeholderText.textAlignHorizontal = "CENTER";
+    placeholderText.layoutAlign = "STRETCH";
     testFrame.appendChild(placeholderText);
     this.imageWrapper.appendChild(testFrame);
   }

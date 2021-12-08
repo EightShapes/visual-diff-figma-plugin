@@ -77,9 +77,9 @@ class TestList extends LitElement {
       ${this.baselineframes.length === 0
         ? this.renderEmptyState()
         : this.renderList()}
-      <button @click="${this._changeView}" data-view="tutorial">
+      <!-- <button @click="${this._changeView}" data-view="tutorial">
         Show Tutorial
-      </button>
+      </button> -->
     </div> `;
   }
 
