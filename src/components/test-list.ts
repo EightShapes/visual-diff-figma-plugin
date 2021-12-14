@@ -21,49 +21,90 @@ class TestList extends LitElement {
       justify-content: space-between;
       padding: 4px 0;
     }
-  `;
 
-  @property({ type: Array })
-  baselineframes = [];
+    .snapshot-list-header {
+      display: flex;
+      justify-content: space-between;
+    }
+  `;
 
   @property({ type: Array })
   currentselection = [];
 
+  @property({ type: Array })
+  testgroupframes = [];
+
+  @property({ type: Boolean })
+  pagehastests = false;
+
+  @property({ type: String })
+  currentpageid;
+
   renderEmptyState() {
+    const itemPlural = this.currentselection.length === 1 ? "item" : "items";
+    const actionText =
+      this.pagehastests === true
+        ? "Add to snapshots on this page"
+        : "Create new snapshots";
     return html`<!-- Nothing selected -->
-      <p>Select one or more objects to create a test.</p>
+      <h1>Create snapshots</h1>
+      ${this.currentselection.length === 0
+        ? html`<p>Select one or more objects to create a snapshot test.</p>`
+        : ""}
       <!-- something selected state-->
       <div>
-        <!-- List of selected objects, scrollable? -->
-        <ul>
+        <!-- List of selected objects, scrollable?, hiding for now, jsut showing count -->
+        <!-- <ul>
           ${this.currentselection.map(
-            (fNode) => html`<li>${fNode.name} -${fNode.id}</li>`
-          )}
-        </ul>
+          (fNode) => html`<li>${fNode.name} -${fNode.id}</li>`
+        )}
+        </ul> -->
         <!-- List of actions to take -->
         ${this.currentselection.length > 0
-          ? html` <ul>
-              <li>
-                <button @click=${this._createTestsFromSelection}>
-                  Create tests from selection
-                </button>
-              </li>
-            </ul>`
+          ? html` <p>${this.currentselection.length} selected ${itemPlural}</p>
+              <ul>
+                <li>
+                  <m-button
+                    @click=${this._createTestsFromSelection}
+                    variant="link"
+                  >
+                    ${actionText}
+                  </m-button>
+                </li>
+              </ul>`
           : ""}
       </div>`;
   }
 
   renderList() {
+    // console.log(this.testgroupframes);
+    const currentPage = this.testgroupframes.find((tgf) => {
+      return tgf.pageId === this.currentpageid;
+    });
+
     return html`
-      <h1>Tests</h1>
+      <div class="snapshot-list-header">
+        <h1>Snapshots</h1>
+        <div class="header-actions">
+          <m-button>New</m-button>
+          <m-button>▶️ Run All</m-button>
+        </div>
+      </div>
       <ul>
-        ${this.baselineframes.map(
-          (fNode) => html` <li>
-            <span>${fNode.name}</span>
+        ${currentPage.tests.map(
+          (test) => html` <li>
             <m-button
-              @click=${this._requestTest}
-              data-baselineframeid=${fNode.id}
-              data-originnodeid=${fNode.originNodeId}
+              variant="link"
+              @click=${() => {
+                this._requestViewportZoom(test.id);
+              }}
+              >${test.name}</m-button
+            >
+            <m-button
+              @click=${() => {
+                this._requestTest(test.id);
+                this._requestViewportZoom(test.id);
+              }}
               >▶️</m-button
             >
           </li>`
@@ -74,9 +115,7 @@ class TestList extends LitElement {
 
   render() {
     return html`<div>
-      ${this.baselineframes.length === 0
-        ? this.renderEmptyState()
-        : this.renderList()}
+      ${this.pagehastests ? this.renderList() : this.renderEmptyState()}
       <!-- <button @click="${this._changeView}" data-view="tutorial">
         Show Tutorial
       </button> -->
@@ -95,15 +134,24 @@ class TestList extends LitElement {
     );
   }
 
-  private _requestTest(e: Event) {
-    console.log("REQUEST TEST");
-    const baselineFrameId = e.target.dataset.baselineframeid;
-    const originNodeId = e.target.dataset.originnodeid;
+  private _requestTest(testId) {
     window.parent.postMessage(
       {
         pluginMessage: {
-          type: "create-test",
-          data: { baselineFrameId, originNodeId },
+          type: "run-tests",
+          data: { testIds: [testId] },
+        },
+      },
+      "*"
+    );
+  }
+
+  private _requestViewportZoom(testId) {
+    window.parent.postMessage(
+      {
+        pluginMessage: {
+          type: "zoom-viewport",
+          data: { nodeIds: [testId] },
         },
       },
       "*"

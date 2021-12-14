@@ -8,17 +8,20 @@ class ViewportManager extends LitElement {
   @property()
   view: string = "test-list";
 
-  @property({ type: Array })
-  currentselection = [];
+  @property({ type: Boolean })
+  pagehastests: boolean = false;
 
   @property({ type: Array })
-  baselineframes = [];
+  currentselection = [];
 
   @property({ type: Array })
   testgroupframes = [];
 
   @property({ type: Object })
   activetestwrapper = {};
+
+  @property({ type: String })
+  currentpageid;
 
   render() {
     let viewOutput;
@@ -27,8 +30,9 @@ class ViewportManager extends LitElement {
       case "test-list":
         viewOutput = html` <test-list
           currentselection=${JSON.stringify(this.currentselection)}
-          baselineframes=${JSON.stringify(this.baselineframes)}
           testgroupframes=${JSON.stringify(this.testgroupframes)}
+          ?pagehastests=${this.pagehastests}
+          currentpageid=${this.currentpageid}
         ></test-list>`;
         break;
       case "test-detail":

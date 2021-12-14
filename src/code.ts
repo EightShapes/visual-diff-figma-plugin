@@ -24,6 +24,14 @@ figma.ui.onmessage = (message) => {
     //     message.data.testNodeId
     //   );
     //   break;
+    case "run-tests":
+      const testIds = message.data.testIds;
+      mendelsohn.runTests(testIds);
+      break;
+    case "zoom-viewport":
+      const nodeIds = message.data.nodeIds;
+      mendelsohn.centerViewportOnNodeIds(nodeIds);
+      break;
     default:
       console.log(message);
   }

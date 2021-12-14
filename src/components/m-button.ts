@@ -1,8 +1,11 @@
 import { LitElement, html, css } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 @customElement("m-button")
 class MButton extends LitElement {
+  @property()
+  variant: string;
+
   static styles = css`
     button {
       background: none;
@@ -11,11 +14,15 @@ class MButton extends LitElement {
       padding: 0;
       margin: 0;
     }
+
+    .link {
+      background: none;
+      color: blue;
+      padding: 0;
+    }
   `;
 
   render() {
-    return html`
-      <button><slot></slot></button>
-`;
+    return html` <button class=${this.variant}><slot></slot></button> `;
   }
 }

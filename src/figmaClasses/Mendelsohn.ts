@@ -3,7 +3,7 @@ import { TestGroup } from "./TestGroup";
 import { TestWrapper } from "./TestWrapper";
 
 export class Mendelsohn {
-  static DEFAULT_UI_HEIGHT = 500;
+  static DEFAULT_UI_HEIGHT = 360;
   static DEFAULT_UI_WIDTH = 240;
   static ALL_TESTS_FRAME_KEY = "all-tests-frame";
   static SCREENSHOT_FIDELITY = 1;
@@ -25,6 +25,28 @@ export class Mendelsohn {
       format: "PNG",
       constraint: { type: "SCALE", value: Mendelsohn.SCREENSHOT_FIDELITY },
     });
+  }
+
+  get currentSelectionSerialized() {
+    return figma.currentPage.selection.map((fNode) => {
+      return { name: fNode.name, id: fNode.id };
+    });
+  }
+
+  get currentTestGroups() {
+    let testGroups = [];
+    figma.root.children.forEach((pageNode) => {
+      const testGroupFrame = Page.findTestsGroupFrame(pageNode);
+      if (testGroupFrame !== null) {
+        const testGroup = new TestGroup(testGroupFrame.id);
+        testGroups.push(testGroup.serializedData);
+      }
+    });
+    return testGroups;
+  }
+
+  get pageHasTests() {
+    return Page.findTestsGroupFrame(figma.currentPage) !== null;
   }
 
   getTestWrapperForNode(node) {
@@ -65,12 +87,9 @@ export class Mendelsohn {
   }
 
   sendCurrentSelectionToUi() {
-    const serializedSelection = figma.currentPage.selection.map((fNode) => {
-      return { name: fNode.name, id: fNode.id };
-    });
     figma.ui.postMessage({
       type: "current-selection-changed",
-      data: serializedSelection,
+      data: this.currentSelectionSerialized,
     });
   }
 
@@ -90,17 +109,6 @@ export class Mendelsohn {
     });
   }
 
-  currentTestGroups() {
-    let testGroups = [];
-    figma.root.children.forEach((pageNode) => {
-      const testGroup = Page.findTestsGroupFrame(pageNode);
-      if (testGroup !== null) {
-        testGroups.push(new TestGroup(testGroup.id));
-      }
-    });
-    return testGroups;
-  }
-
   showUi() {
     figma.showUI(__html__, {
       visible: true,
@@ -109,20 +117,55 @@ export class Mendelsohn {
     });
   }
 
-  createTestsFromCurrentSelection() {
+  async createTestsFromCurrentSelection() {
     const originNodes = figma.currentPage.selection;
     const testGroupFrame = Page.findOrCreateTestsGroupFrame(figma.currentPage);
     const testGroup = new TestGroup(testGroupFrame.id);
-    testGroup.createNewTests(originNodes.map((node) => node.id));
+    const newTestFrames = await testGroup.createNewTests(
+      originNodes.map((node) => node.id)
+    );
+    figma.viewport.scrollAndZoomIntoView(newTestFrames);
+    this.postCurrentState();
+  }
+
+  centerViewportOnNodeIds(nodeIds) {
+    const nodes = nodeIds.map((id) => figma.getNodeById(id));
+    figma.viewport.scrollAndZoomIntoView(nodes);
+  }
+
+  runTests(testIds) {
+    for (const testId of testIds) {
+      const Test = new TestWrapper(testId);
+      Test.runTest();
+    }
+  }
+
+  postCurrentState() {
+    const currentState = {
+      currentSelection: this.currentSelectionSerialized,
+      currentPageId: figma.currentPage.id,
+      testGroups: this.currentTestGroups, // TODO: This is expensive to serialize, limit to current page test group
+      pageHasTests: this.pageHasTests,
+    };
+
+    figma.ui.postMessage({
+      type: "state-update",
+      data: currentState,
+    });
   }
 
   async initialize() {
     await figma.loadFontAsync(Mendelsohn.DEFAULT_FONT);
     this.showUi();
-    this.sendCurrentSelectionToUi();
-    this.sendTestGroupUpdate(this.currentTestGroups());
+    this.postCurrentState();
+    // this.sendCurrentSelectionToUi();
+    // this.sendTestGroupUpdate(this.currentTestGroups);
     figma.on("selectionchange", () => {
       this.handleCurrentSelectionChange();
+    });
+
+    figma.on("currentpagechange", () => {
+      this.postCurrentState();
     });
   }
 }

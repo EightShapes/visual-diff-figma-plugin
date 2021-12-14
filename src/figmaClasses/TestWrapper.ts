@@ -69,8 +69,6 @@ export class TestWrapper {
 
   constructor(testFrameId) {
     this.frame = figma.getNodeById(testFrameId);
-    this.updateBaseline();
-    this.initializeTestFrame();
   }
 
   get imageWrapper() {
@@ -85,11 +83,24 @@ export class TestWrapper {
     );
   }
 
+  get testFrame() {
+    return this.imageWrapper.findChild(
+      (node) => node.getPluginData(TestWrapper.TEST_FRAME_KEY) === "true"
+    );
+  }
+
   get originNode() {
     const originNodeId = this.frame.getPluginData(
       TestWrapper.ORIGIN_NODE_ID_KEY
     );
     return figma.getNodeById(originNodeId);
+  }
+
+  get serializedData() {
+    return {
+      name: this.frame.name,
+      id: this.baselineFrame.id,
+    };
   }
 
   updateBaseline() {
@@ -102,26 +113,37 @@ export class TestWrapper {
     baseline.update();
   }
 
+  initialize() {
+    this.updateBaseline();
+    this.initializeTestFrame();
+  }
+
   initializeTestFrame() {
-    const testFrame = TestWrapper.createNewFrameForNode(this.baselineFrame);
-    testFrame.name = `${this.originNode.name}${TestWrapper.TEST_FRAME_SUFFIX}`;
-    testFrame.setPluginData(TestWrapper.TEST_FRAME_KEY, "true");
-    testFrame.layoutMode = "VERTICAL";
-    testFrame.primaryAxisAlignItems = "CENTER";
-    testFrame.primaryAxisSizingMode = "FIXED";
-    testFrame.strokes = [
-      {
-        type: "SOLID",
-        color: Mendelsohn.LIGHT_GRAY_RGB,
-      },
-    ];
-    const placeholderText = figma.createText();
-    placeholderText.fontName = Mendelsohn.DEFAULT_FONT;
-    placeholderText.fontSize = 12;
-    placeholderText.characters = "No results, test not yet run.";
-    placeholderText.textAlignHorizontal = "CENTER";
-    placeholderText.layoutAlign = "STRETCH";
-    testFrame.appendChild(placeholderText);
-    this.imageWrapper.appendChild(testFrame);
+    if (this.testFrame === null) {
+      const testFrame = TestWrapper.createNewFrameForNode(this.baselineFrame);
+      testFrame.name = `${this.originNode.name}${TestWrapper.TEST_FRAME_SUFFIX}`;
+      testFrame.setPluginData(TestWrapper.TEST_FRAME_KEY, "true");
+      testFrame.layoutMode = "VERTICAL";
+      testFrame.primaryAxisAlignItems = "CENTER";
+      testFrame.primaryAxisSizingMode = "FIXED";
+      testFrame.strokes = [
+        {
+          type: "SOLID",
+          color: Mendelsohn.LIGHT_GRAY_RGB,
+        },
+      ];
+      const placeholderText = figma.createText();
+      placeholderText.fontName = Mendelsohn.DEFAULT_FONT;
+      placeholderText.fontSize = 12;
+      placeholderText.characters = "No results, test not yet run.";
+      placeholderText.textAlignHorizontal = "CENTER";
+      placeholderText.layoutAlign = "STRETCH";
+      testFrame.appendChild(placeholderText);
+      this.imageWrapper.appendChild(testFrame);
+    }
+  }
+
+  runTest() {
+    console.log(`Run a test for: ${this.frame.name}`);
   }
 }
