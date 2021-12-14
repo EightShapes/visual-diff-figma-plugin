@@ -28,12 +28,17 @@ onmessage = async (message) => {
       viewportManager.activetestwrapper = message.data.pluginMessage.data;
       break;
     case "get-image-diff":
-      console.log("switch gid");
       const diffData = await imageProcessor.getImageDiff(
-        message.data.pluginMessage
+        message.data.pluginMessage.data
       );
       parent.postMessage(
-        { pluginMessage: { type: "diff-created", data: diffData } },
+        {
+          pluginMessage: {
+            type: "diff-created",
+            data: diffData,
+            testId: message.data.pluginMessage.data.testId,
+          },
+        },
         "*"
       );
       break;

@@ -77,17 +77,25 @@ class TestList extends LitElement {
   }
 
   renderList() {
-    // console.log(this.testgroupframes);
+    console.log(this.testgroupframes);
     const currentPage = this.testgroupframes.find((tgf) => {
       return tgf.pageId === this.currentpageid;
     });
+
+    const allTestIds = currentPage.tests.map((t) => t.id);
+    console.log(allTestIds);
 
     return html`
       <div class="snapshot-list-header">
         <h1>Snapshots</h1>
         <div class="header-actions">
           <m-button>New</m-button>
-          <m-button>▶️ Run All</m-button>
+          <m-button
+            @click=${() => {
+              this._requestTests(allTestIds);
+            }}
+            >▶️ Run All</m-button
+          >
         </div>
       </div>
       <ul>
@@ -96,14 +104,13 @@ class TestList extends LitElement {
             <m-button
               variant="link"
               @click=${() => {
-                this._requestViewportZoom(test.id);
+                this._requestViewportZoom([test.id]);
               }}
               >${test.name}</m-button
             >
             <m-button
               @click=${() => {
-                this._requestTest(test.id);
-                this._requestViewportZoom(test.id);
+                this._requestTests([test.id]);
               }}
               >▶️</m-button
             >
@@ -134,24 +141,25 @@ class TestList extends LitElement {
     );
   }
 
-  private _requestTest(testId) {
+  private _requestTests(testIds) {
     window.parent.postMessage(
       {
         pluginMessage: {
           type: "run-tests",
-          data: { testIds: [testId] },
+          data: { testIds },
         },
       },
       "*"
     );
+    this._requestViewportZoom(testIds); // Zoom to test frames when tests are being run
   }
 
-  private _requestViewportZoom(testId) {
+  private _requestViewportZoom(testIds) {
     window.parent.postMessage(
       {
         pluginMessage: {
           type: "zoom-viewport",
-          data: { nodeIds: [testId] },
+          data: { nodeIds: testIds },
         },
       },
       "*"

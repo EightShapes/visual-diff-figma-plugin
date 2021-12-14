@@ -68,7 +68,7 @@ export class TestWrapper {
   };
 
   constructor(testFrameId) {
-    this.frame = figma.getNodeById(testFrameId);
+    this.frame = figma.getNodeById(testFrameId); // TODO: Research the arbitrary assignment of instance properties, is this valid?
   }
 
   get imageWrapper() {
@@ -99,18 +99,36 @@ export class TestWrapper {
   get serializedData() {
     return {
       name: this.frame.name,
-      id: this.baselineFrame.id,
+      id: this.frame.id,
     };
   }
 
   updateBaseline() {
     if (this.baselineFrame === null) {
-      console.log("ORIGIN NODE", this.originNode);
       const baselineFrame = Baseline.createNewBaselineFrame(this.originNode);
       this.imageWrapper.appendChild(baselineFrame);
     }
     const baseline = new Baseline(this.baselineFrame.id);
     baseline.update();
+  }
+
+  removeTestPlaceholderText() {
+    const placeholderText = this.testFrame.children[0];
+    if (placeholderText !== undefined) {
+      placeholderText.remove();
+    }
+  }
+
+  async updateTestFrame() {
+    this.removeTestPlaceholderText();
+    const screenshotBytes = await Mendelsohn.convertFrameToImage(
+      this.originNode
+    );
+    const screenshotImageHash = figma.createImage(screenshotBytes).hash;
+    this.testFrame.fills = [
+      { type: "IMAGE", imageHash: screenshotImageHash, scaleMode: "FILL" },
+    ];
+    this.testFrame.resize(this.originNode.width, this.originNode.height);
   }
 
   initialize() {
@@ -143,7 +161,104 @@ export class TestWrapper {
     }
   }
 
-  runTest() {
-    console.log(`Run a test for: ${this.frame.name}`);
+  async createImageDiff() {
+    const baselineImage = figma.getImageByHash(
+      this.baselineFrame.fills[0].imageHash
+    );
+    const baselineImageBytes = await baselineImage.getBytesAsync();
+
+    const testImage = figma.getImageByHash(this.testFrame.fills[0].imageHash);
+    const testImageBytes = await testImage.getBytesAsync();
+
+    const imageData = {
+      baseline: {
+        image: baselineImageBytes,
+        height: this.baselineFrame.height,
+        width: this.baselineFrame.width,
+        nodeId: this.baselineFrame.id,
+      },
+      test: {
+        image: testImageBytes,
+        height: this.testFrame.height,
+        width: this.testFrame.width,
+        nodeId: this.testFrame.id,
+      },
+      testId: this.frame.id,
+    };
+
+    const response = new Promise((resolve, reject) => {
+      const diffCreatedHandler = (msg) => {
+        if (msg.type === "diff-created" && msg.testId === this.frame.id) {
+          const { encodedImageDiff, pixelDiffCount } = msg.data;
+          figma.ui.off("message", diffCreatedHandler); // Remove event handler after it executes so they don't pile up on subsequent runs
+          return resolve({ encodedImageDiff, pixelDiffCount });
+        }
+      };
+
+      figma.ui.on("message", diffCreatedHandler);
+    });
+
+    figma.ui.postMessage({
+      type: "get-image-diff",
+      data: imageData,
+    });
+
+    return response;
+  }
+
+  async runTest() {
+    await this.updateTestFrame();
+
+    const { encodedImageDiff, pixelDiffCount } = await this.createImageDiff();
+
+    const diffHeight = Math.max(
+      this.testFrame.height,
+      this.baselineFrame.height
+    );
+    const diffWidth = Math.max(this.testFrame.width, this.baselineFrame.width);
+
+    this.testFrame.resize(diffWidth, diffHeight);
+
+    this.testFrame.fills = [
+      {
+        type: "IMAGE",
+        imageHash: figma.createImage(encodedImageDiff).hash,
+        scaleMode: "FILL",
+      },
+    ];
   }
 }
+
+// const createDiffFrame = async (
+//   diffUInt8Array,
+//   pixelDiffCount,
+//   baselineFrameId,
+//   testFrameId
+// ) => {
+//   const baselineFrame = figma.getNodeById(baselineFrameId) as FrameNode;
+//   const testFrame = figma.getNodeById(testFrameId) as FrameNode;
+//   const diffFrame = figma.createFrame();
+//   const diffFrameWidth = Math.max(baselineFrame.width, testFrame.width);
+//   const diffFrameHeight = Math.max(baselineFrame.height, testFrame.height);
+
+//   diffFrame.resize(diffFrameWidth, diffFrameHeight);
+
+//   const passFailMessage =
+//     pixelDiffCount === 0 ? passingTestPrefix : failingTestPrefix;
+//   diffFrame.name = `${passFailMessage}${baselineFrame.name.replace(
+//     baselineNameSuffix,
+//     ""
+//   )}${diffNameSuffix}`;
+
+//   testPage.appendChild(diffFrame);
+//   diffFrame.x = testFrame.x + testFrame.width + LAYOUT_GUTTER;
+//   diffFrame.y = testFrame.y;
+//   diffFrame.fills = [
+//     {
+//       type: "IMAGE",
+//       imageHash: figma.createImage(diffUInt8Array).hash,
+//       scaleMode: "FILL",
+//     },
+//     // {type: 'IMAGE', imageHash: baselineImage.hash, scaleMode: 'FIT'}
+//   ];
+// };

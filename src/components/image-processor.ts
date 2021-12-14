@@ -8,7 +8,7 @@ class ImageProcessor extends LitElement {
     return html` <canvas style="display: none;"></canvas>`;
   }
 
-    // Encoding an image is also done by sticking pixels in an
+  // Encoding an image is also done by sticking pixels in an
   // HTML canvas and by asking the canvas to serialize it into
   // an actual PNG file via canvas.toBlob().
   private _encode = async (canvas, ctx, imageData) => {
@@ -21,7 +21,7 @@ class ImageProcessor extends LitElement {
         reader.readAsArrayBuffer(blob);
       });
     });
-  }
+  };
 
   // Decoding an image can be done by sticking it in an HTML
   // canvas, as we can read individual pixels off the canvas.
@@ -39,13 +39,13 @@ class ImageProcessor extends LitElement {
     ctx.drawImage(image, 0, 0);
     const imageData = ctx.getImageData(0, 0, width, height);
     return imageData;
-  }
+  };
 
-   getImageDiff = async (messageData) => {
+  getImageDiff = async (imageData) => {
     console.log("GID", this);
     const canvas = this.shadowRoot.querySelector("canvas");
     const ctx = canvas.getContext("2d");
-    const { baseline, test } = messageData.imageData;
+    const { baseline, test } = imageData;
 
     // If test is wider/taller than baseline, pad out baseline with white pixels
     // If baseline is wider/taller than test, pad out test with white pixels

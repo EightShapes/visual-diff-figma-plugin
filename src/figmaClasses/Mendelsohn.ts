@@ -133,11 +133,12 @@ export class Mendelsohn {
     figma.viewport.scrollAndZoomIntoView(nodes);
   }
 
-  runTests(testIds) {
+  async runTests(testIds) {
     for (const testId of testIds) {
       const Test = new TestWrapper(testId);
-      Test.runTest();
+      await Test.runTest();
     }
+    console.log("RUN TESTS FINISHED");
   }
 
   postCurrentState() {
