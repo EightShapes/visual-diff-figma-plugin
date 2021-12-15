@@ -29,67 +29,24 @@ class TestList extends LitElement {
   `;
 
   @property({ type: Array })
-  currentselection = [];
-
-  @property({ type: Array })
   testgroupframes = [];
-
-  @property({ type: Boolean })
-  pagehastests = false;
 
   @property({ type: String })
   currentpageid;
 
-  renderEmptyState() {
-    const itemPlural = this.currentselection.length === 1 ? "item" : "items";
-    const actionText =
-      this.pagehastests === true
-        ? "Add to snapshots on this page"
-        : "Create new snapshots";
-    return html`<!-- Nothing selected -->
-      <h1>Create snapshots</h1>
-      ${this.currentselection.length === 0
-        ? html`<p>Select one or more objects to create a snapshot test.</p>`
-        : ""}
-      <!-- something selected state-->
-      <div>
-        <!-- List of selected objects, scrollable?, hiding for now, jsut showing count -->
-        <!-- <ul>
-          ${this.currentselection.map(
-          (fNode) => html`<li>${fNode.name} -${fNode.id}</li>`
-        )}
-        </ul> -->
-        <!-- List of actions to take -->
-        ${this.currentselection.length > 0
-          ? html` <p>${this.currentselection.length} selected ${itemPlural}</p>
-              <ul>
-                <li>
-                  <m-button
-                    @click=${this._createTestsFromSelection}
-                    variant="link"
-                  >
-                    ${actionText}
-                  </m-button>
-                </li>
-              </ul>`
-          : ""}
-      </div>`;
-  }
-
-  renderList() {
-    console.log(this.testgroupframes);
+  render() {
     const currentPage = this.testgroupframes.find((tgf) => {
       return tgf.pageId === this.currentpageid;
     });
-
     const allTestIds = currentPage.tests.map((t) => t.id);
-    console.log(allTestIds);
 
     return html`
       <div class="snapshot-list-header">
         <h1>Snapshots</h1>
         <div class="header-actions">
-          <m-button>New</m-button>
+          <m-button @click=${this._changeView} data-view="create-tests"
+            >New</m-button
+          >
           <m-button
             @click=${() => {
               this._requestTests(allTestIds);
@@ -120,18 +77,10 @@ class TestList extends LitElement {
     `;
   }
 
-  render() {
-    return html`<div>
-      ${this.pagehastests ? this.renderList() : this.renderEmptyState()}
-      <!-- <button @click="${this._changeView}" data-view="tutorial">
-        Show Tutorial
-      </button> -->
-    </div> `;
-  }
-
   private _changeView(e: Event) {
     const target = e.target;
     const newView = target.dataset.view;
+    console.log(`go to new view ${newView}`);
     this.dispatchEvent(
       new CustomEvent("changeview", {
         detail: { newView },
@@ -160,17 +109,6 @@ class TestList extends LitElement {
         pluginMessage: {
           type: "zoom-viewport",
           data: { nodeIds: testIds },
-        },
-      },
-      "*"
-    );
-  }
-
-  private _createTestsFromSelection(e: Event) {
-    window.parent.postMessage(
-      {
-        pluginMessage: {
-          type: "create-tests-from-current-selection",
         },
       },
       "*"

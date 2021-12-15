@@ -14,9 +14,11 @@ onmessage = async (message) => {
       viewportManager.testgroupframes = currentState.testGroups;
       viewportManager.currentselection = currentState.currentSelection;
       viewportManager.currentpageid = currentState.currentPageId;
+      viewportManager.view = currentState.pageHasTests
+        ? "test-list"
+        : "create-tests";
       break;
     case "current-selection-changed":
-      viewportManager.view = "test-list";
       viewportManager.currentselection = message.data.pluginMessage.data;
       break;
     case "test-group-frames-update":

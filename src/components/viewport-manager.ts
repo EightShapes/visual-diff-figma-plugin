@@ -2,11 +2,12 @@ import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import "./test-list";
 import "./test-detail";
+import "./create-tests";
 
 @customElement("viewport-manager")
 class ViewportManager extends LitElement {
   @property()
-  view: string = "test-list";
+  view: string = "create-tests";
 
   @property({ type: Boolean })
   pagehastests: boolean = false;
@@ -27,6 +28,12 @@ class ViewportManager extends LitElement {
     let viewOutput;
 
     switch (this.view) {
+      case "create-tests":
+        viewOutput = html`<create-tests
+          currentselection=${JSON.stringify(this.currentselection)}
+          ?pagehastests=${this.pagehastests}
+        ></create-tests>`;
+        break;
       case "test-list":
         viewOutput = html` <test-list
           currentselection=${JSON.stringify(this.currentselection)}
@@ -71,7 +78,6 @@ class ViewportManager extends LitElement {
   }
 
   private _handlePostMessage(e: CustomEvent) {
-    console.log("HTPM", e, this);
     window.parent.postMessage(
       {
         pluginMessage: e.detail,
