@@ -1,9 +1,10 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./m-button";
 
 @customElement("create-tests")
-class CreateTests extends LitElement {
+class CreateTests extends MendelsohnMixins(LitElement) {
   static styles = css`
     * {
       font-family: "Inter", sans-serif;
@@ -72,19 +73,6 @@ class CreateTests extends LitElement {
               </ul>`
           : ""}
       </div>`;
-  }
-
-  // TODO, find a way to share this method across components or build into button
-  private _changeView(e: Event) {
-    const target = e.target;
-    const newView = target.dataset.view;
-    this.dispatchEvent(
-      new CustomEvent("changeview", {
-        detail: { newView },
-        bubbles: true,
-        composed: true,
-      })
-    );
   }
 
   private _createTestsFromSelection(e: Event) {

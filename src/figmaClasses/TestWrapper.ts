@@ -4,12 +4,15 @@ import { Baseline } from "./Baseline";
 export class TestWrapper {
   static TEST_WRAPPER_SUFFIX = " Test";
   static TEST_WRAPPER_KEY = "mendelsohn-test-wrapper";
+  static TEST_WRAPPER_CREATED_AT_KEY = "mendelsohn-test-wrapper-created-at";
+  static TEST_WRAPPER_LAST_RUN_AT_KEY = "mendelsohn-test-wrapper-last-run-at";
   static IMAGE_WRAPPER_KEY = "mendelsohn-image-wrapper";
   static IMAGE_WRAPPER_SUFFIX = " Image Wrapper";
   static TEST_FRAME_KEY = "mendelsohn-test-frame";
   static TEST_FRAME_SUFFIX = " Test Frame";
   static BASELINE_FRAME_KEY = "mendelsohn-baseline-frame";
   static ORIGIN_NODE_ID_KEY = "mendelsohn-origin-node-id";
+  static TEST_STATUS_KEY = "test-status";
   static TITLE_FONT_SIZE = 24;
 
   static async createNewTestMetadata(name) {
@@ -42,6 +45,10 @@ export class TestWrapper {
     testWrapper.name = `${originNode.name}${TestWrapper.TEST_WRAPPER_SUFFIX}`;
     testWrapper.setPluginData(TestWrapper.TEST_WRAPPER_KEY, "true");
     testWrapper.setPluginData(TestWrapper.ORIGIN_NODE_ID_KEY, originNode.id);
+    testWrapper.setPluginData(
+      TestWrapper.TEST_WRAPPER_CREATED_AT_KEY,
+      new Date().toString()
+    );
     testWrapper.layoutMode = "VERTICAL";
     testWrapper.primaryAxisSizingMode = "AUTO";
     testWrapper.counterAxisSizingMode = "AUTO";
@@ -100,7 +107,22 @@ export class TestWrapper {
     return {
       name: this.frame.name,
       id: this.frame.id,
+      status: this.status,
+      created_at: this.created_at,
+      last_run_at: this.last_run_at,
     };
+  }
+
+  get status() {
+    return this.frame.getPluginData(TestWrapper.TEST_STATUS_KEY);
+  }
+
+  get created_at() {
+    return this.frame.getPluginData(TestWrapper.TEST_WRAPPER_CREATED_AT_KEY);
+  }
+
+  get last_run_at() {
+    return this.frame.getPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY);
   }
 
   updateBaseline() {
@@ -206,10 +228,28 @@ export class TestWrapper {
     return response;
   }
 
+  updateTestStatus(pixelDiffCount) {
+    const status = pixelDiffCount === 0 ? "pass" : "fail";
+    this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, status);
+    this.frame.setPluginData(
+      TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY,
+      new Date().toString()
+    );
+  }
+
+  postTestDetailUpdate() {
+    figma.ui.postMessage({
+      type: "test-detail-update",
+      data: this.serializedData,
+    });
+  }
+
   async runTest() {
     await this.updateTestFrame();
 
     const { encodedImageDiff, pixelDiffCount } = await this.createImageDiff();
+
+    this.updateTestStatus(pixelDiffCount);
 
     const diffHeight = Math.max(
       this.testFrame.height,
@@ -226,39 +266,7 @@ export class TestWrapper {
         scaleMode: "FILL",
       },
     ];
+
+    this.postTestDetailUpdate();
   }
 }
-
-// const createDiffFrame = async (
-//   diffUInt8Array,
-//   pixelDiffCount,
-//   baselineFrameId,
-//   testFrameId
-// ) => {
-//   const baselineFrame = figma.getNodeById(baselineFrameId) as FrameNode;
-//   const testFrame = figma.getNodeById(testFrameId) as FrameNode;
-//   const diffFrame = figma.createFrame();
-//   const diffFrameWidth = Math.max(baselineFrame.width, testFrame.width);
-//   const diffFrameHeight = Math.max(baselineFrame.height, testFrame.height);
-
-//   diffFrame.resize(diffFrameWidth, diffFrameHeight);
-
-//   const passFailMessage =
-//     pixelDiffCount === 0 ? passingTestPrefix : failingTestPrefix;
-//   diffFrame.name = `${passFailMessage}${baselineFrame.name.replace(
-//     baselineNameSuffix,
-//     ""
-//   )}${diffNameSuffix}`;
-
-//   testPage.appendChild(diffFrame);
-//   diffFrame.x = testFrame.x + testFrame.width + LAYOUT_GUTTER;
-//   diffFrame.y = testFrame.y;
-//   diffFrame.fills = [
-//     {
-//       type: "IMAGE",
-//       imageHash: figma.createImage(diffUInt8Array).hash,
-//       scaleMode: "FILL",
-//     },
-//     // {type: 'IMAGE', imageHash: baselineImage.hash, scaleMode: 'FIT'}
-//   ];
-// };

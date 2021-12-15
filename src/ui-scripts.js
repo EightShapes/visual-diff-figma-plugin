@@ -25,6 +25,13 @@ onmessage = async (message) => {
       viewportManager.testgroupframes = message.data.pluginMessage.data;
       console.log(message.data.pluginMessage.data);
       break;
+    case "test-detail-update":
+      const testData = message.data.pluginMessage.data;
+      // If the activetestwrapper.id is the same as testData.id, then update the activetestwrapper
+      if (viewportManager.activetestwrapper.id === testData.id) {
+        viewportManager.activetestwrapper = testData;
+      }
+      break;
     case "active-test-wrapper-changed":
       viewportManager.view = "test-detail";
       viewportManager.activetestwrapper = message.data.pluginMessage.data;

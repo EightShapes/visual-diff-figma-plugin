@@ -1,9 +1,10 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./m-button";
 
 @customElement("test-list")
-class TestList extends LitElement {
+class TestList extends MendelsohnMixins(LitElement) {
   static styles = css`
     * {
       font-family: "Inter", sans-serif;
@@ -56,8 +57,21 @@ class TestList extends LitElement {
         </div>
       </div>
       <ul>
-        ${currentPage.tests.map(
-          (test) => html` <li>
+        ${currentPage.tests.map((test) => {
+          let statusIcon;
+          switch (test.status) {
+            case "pass":
+              statusIcon = "✅";
+              break;
+            case "fail":
+              statusIcon = "⚠️";
+              break;
+            default:
+              statusIcon = "-";
+          }
+
+          return html` <li>
+            ${statusIcon}
             <m-button
               variant="link"
               @click=${() => {
@@ -72,23 +86,16 @@ class TestList extends LitElement {
               }}
               >▶️</m-button
             >
-          </li>`
-        )}
+            <m-button
+              @click=${() => {
+                this._requestViewportZoom([test.id]);
+              }}
+              >🎯</m-button
+            >
+          </li>`;
+        })}
       </ul>
     `;
-  }
-
-  private _changeView(e: Event) {
-    const target = e.target;
-    const newView = target.dataset.view;
-    console.log(`go to new view ${newView}`);
-    this.dispatchEvent(
-      new CustomEvent("changeview", {
-        detail: { newView },
-        bubbles: true,
-        composed: true,
-      })
-    );
   }
 
   private _showTestDetail(test) {
@@ -98,31 +105,6 @@ class TestList extends LitElement {
         bubbles: true,
         composed: true,
       })
-    );
-  }
-
-  private _requestTests(testIds) {
-    window.parent.postMessage(
-      {
-        pluginMessage: {
-          type: "run-tests",
-          data: { testIds },
-        },
-      },
-      "*"
-    );
-    this._requestViewportZoom(testIds); // Zoom to test frames when tests are being run
-  }
-
-  private _requestViewportZoom(testIds) {
-    window.parent.postMessage(
-      {
-        pluginMessage: {
-          type: "zoom-viewport",
-          data: { nodeIds: testIds },
-        },
-      },
-      "*"
     );
   }
 }

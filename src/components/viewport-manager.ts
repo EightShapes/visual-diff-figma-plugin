@@ -27,6 +27,8 @@ class ViewportManager extends LitElement {
   render() {
     let viewOutput;
 
+    console.log(this.activetestwrapper);
+
     switch (this.view) {
       case "create-tests":
         viewOutput = html`<create-tests
@@ -45,6 +47,10 @@ class ViewportManager extends LitElement {
       case "test-detail":
         viewOutput = html`<test-detail
           name=${this.activetestwrapper.name}
+          id=${this.activetestwrapper.id}
+          status=${this.activetestwrapper.status}
+          createdat=${this.activetestwrapper.created_at}
+          lastrunat=${this.activetestwrapper.last_run_at}
         ></test-detail>`;
         break;
       case "tutorial":

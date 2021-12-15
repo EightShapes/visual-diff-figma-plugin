@@ -78,7 +78,6 @@ export class Mendelsohn {
   sendActiveTestWrapperChange(testWrapper) {
     // Serialize the test wrapper
     // Post the message to the UI
-    console.log("YOU CLICKED A TEST SOMETHING");
     const testWrapperObject = new TestWrapper(testWrapper.id);
     figma.ui.postMessage({
       type: "active-test-wrapper-changed",
@@ -138,7 +137,7 @@ export class Mendelsohn {
       const Test = new TestWrapper(testId);
       await Test.runTest();
     }
-    console.log("RUN TESTS FINISHED");
+    this.postCurrentState();
   }
 
   postCurrentState() {
