@@ -72,8 +72,10 @@ class ViewportManager extends LitElement {
   }
 
   private _changeViewListener(e: CustomEvent) {
-    console.log("ive done a thing", e);
     const newView = e.detail.newView;
+    if (newView === "test-detail") {
+      this.activetestwrapper = e.detail.test;
+    }
     this.view = newView;
   }
 

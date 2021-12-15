@@ -61,6 +61,7 @@ class TestList extends LitElement {
             <m-button
               variant="link"
               @click=${() => {
+                this._showTestDetail(test);
                 this._requestViewportZoom([test.id]);
               }}
               >${test.name}</m-button
@@ -84,6 +85,16 @@ class TestList extends LitElement {
     this.dispatchEvent(
       new CustomEvent("changeview", {
         detail: { newView },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  private _showTestDetail(test) {
+    this.dispatchEvent(
+      new CustomEvent("changeview", {
+        detail: { newView: "test-detail", test },
         bubbles: true,
         composed: true,
       })

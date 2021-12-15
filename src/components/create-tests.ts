@@ -40,8 +40,11 @@ class CreateTests extends LitElement {
       this.pagehastests === true
         ? "Add to snapshots on this page"
         : "Create new snapshots";
-    return html`<!-- Nothing selected -->
-      <m-button @click=${this._changeView} data-view="test-list">Back</m-button>
+    return html` ${this.pagehastests === true
+        ? html`<m-button @click=${this._changeView} data-view="test-list"
+            >Back</m-button
+          >`
+        : ""}
       <h1>Create snapshots</h1>
       ${this.currentselection.length === 0
         ? html`<p>Select one or more objects to create a snapshot test.</p>`

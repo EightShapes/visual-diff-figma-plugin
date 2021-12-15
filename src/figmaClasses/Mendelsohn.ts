@@ -79,10 +79,10 @@ export class Mendelsohn {
     // Serialize the test wrapper
     // Post the message to the UI
     console.log("YOU CLICKED A TEST SOMETHING");
-    const serializedTestWrapper = { name: testWrapper.name }; // TODO: add other stored data like pass/fail status, etc.
+    const testWrapperObject = new TestWrapper(testWrapper.id);
     figma.ui.postMessage({
       type: "active-test-wrapper-changed",
-      data: serializedTestWrapper,
+      data: testWrapperObject.serializedData,
     });
   }
 
