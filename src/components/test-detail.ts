@@ -30,6 +30,14 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   @property({ type: String })
   diffdisplaymode = "overlay";
 
+  @property({ type: Number })
+  viewproportion = 0.5;
+
+  constructor() {
+    super();
+    this.displayModeSliderDragging = false;
+  }
+
   renderDiffControls() {
     return html`
       <form id="display-mode-form">
@@ -37,7 +45,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           <legend>Display</legend>
           <label
             ><input
-              @change=${this._handleViewChange}
+              @change=${this._handleDisplayModeChange}
               type="radio"
               name="diff-mode"
               value="overlay"
@@ -47,7 +55,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           </label>
           <label
             ><input
-              @change=${this._handleViewChange}
+              @change=${this._handleDisplayModeChange}
               type="radio"
               name="diff-mode"
               value="side"
@@ -58,7 +66,17 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         </fieldset>
         ${this.diffdisplaymode === "overlay"
           ? html`<label for="proportion-slider">Proportion</label>
-              <input type="range" id="proportion-slider" /> `
+              <input
+                type="range"
+                id="proportion-slider"
+                @mousedown=${this._initiateDisplayProportionChange}
+                @mouseup=${this._terminateDisplayProportionChange}
+                @mousemove=${this._handleDisplayProportionChange}
+                min="0"
+                max="1"
+                step="0.05"
+                value=${this.viewproportion}
+              /> `
           : ""}
       </form>
       <form id="update-snapshot-form">
@@ -105,11 +123,13 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       ${this.status === "fail" ? this.renderDiffControls() : ""}`;
   }
 
-  private _handleViewChange(e) {
+  private _handleDisplayModeChange(e) {
     const formData = new FormData(
       this.shadowRoot.getElementById("display-mode-form")
     );
     const view = formData.get("diff-mode");
+    this.diffdisplaymode = view;
+
     window.parent.postMessage(
       {
         pluginMessage: {
@@ -119,5 +139,27 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       },
       "*"
     );
+  }
+
+  private _handleDisplayProportionChange(e) {
+    if (this.displayModeSliderDragging) {
+      window.parent.postMessage(
+        {
+          pluginMessage: {
+            type: "display-mode-proportion-change",
+            data: { testFrameId: this.id, proportion: e.target.value },
+          },
+        },
+        "*"
+      );
+    }
+  }
+
+  private _initiateDisplayProportionChange(e) {
+    this.displayModeSliderDragging = true;
+  }
+
+  private _terminateDisplayProportionChange(e) {
+    this.displayModeSliderDragging = false;
   }
 }

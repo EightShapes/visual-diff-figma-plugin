@@ -81,7 +81,7 @@ class ImageProcessor extends LitElement {
       largestWidth,
       largestHeight,
       {
-        threshold: 0,
+        threshold: 0.1,
         diffColor: [255, 66, 179],
         aaColor: [255, 66, 179],
         alpha: 0.3,

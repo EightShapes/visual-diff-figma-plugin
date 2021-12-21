@@ -20,10 +20,17 @@ figma.ui.on("message", (message) => {
   }
 
   if (message.type === "change-test-view") {
-    console.log("CTV");
     const testFrameId = message.data.testFrameId;
     const view = message.data.view;
     const test = new TestWrapper(testFrameId);
     test.setViewState(view);
+  }
+
+  if (message.type === "display-mode-proportion-change") {
+    console.log("CTV");
+    const testFrameId = message.data.testFrameId;
+    const proportion = message.data.proportion;
+    const test = new TestWrapper(testFrameId);
+    test.setViewProportion(proportion);
   }
 });

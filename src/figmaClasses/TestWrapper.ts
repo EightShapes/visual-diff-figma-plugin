@@ -28,6 +28,8 @@ export class TestWrapper {
   static ERROR_BACKGROUND_OPACITY = 0.07;
   static DEFAULT_VIEW_STATE = "overlay";
   static VIEW_STATE_KEY = "mendelsohn-view-state";
+  static VIEW_PROPORTION_KEY = "mendelsohn-view-proportion";
+  static DEFAULT_VIEW_PROPORTION = 0.5;
 
   static async createNewTestMetadata(name) {
     const metadataFrame = figma.createFrame();
@@ -159,6 +161,17 @@ export class TestWrapper {
     return this.frame.setPluginData(TestWrapper.VIEW_STATE_KEY, viewState);
   }
 
+  get viewProportion() {
+    return this.frame.getPluginData(TestWrapper.VIEW_PROPORTION_KEY);
+  }
+
+  set viewProportion(viewProportion) {
+    return this.frame.setPluginData(
+      TestWrapper.VIEW_PROPORTION_KEY,
+      viewProportion
+    );
+  }
+
   get serializedData() {
     console.log("SERIAL", this.viewState, this.frame.id);
     return {
@@ -168,6 +181,7 @@ export class TestWrapper {
       created_at: this.created_at,
       last_run_at: this.last_run_at,
       view_state: this.viewState,
+      view_proportion: this.viewProportion,
     };
   }
 
@@ -385,8 +399,26 @@ export class TestWrapper {
     this.viewState = viewState;
     if (viewState === "overlay") {
       this.baselineFrame.visible = false;
+      const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
+      testFrameFills[2].visible = false;
+      this.testFrame.fills = testFrameFills;
     } else {
       this.baselineFrame.visible = true;
+      const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
+      testFrameFills[2].visible = true;
+      this.testFrame.fills = testFrameFills;
     }
+  }
+
+  setViewProportion(viewProportion) {
+    this.viewProportion = viewProportion;
+    const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
+    testFrameFills[1].opacity = parseFloat(viewProportion);
+    this.testFrame.fills = testFrameFills;
+    // if (viewState === "overlay") {
+    //   this.baselineFrame.visible = false;
+    // } else {
+    //   this.baselineFrame.visible = true;
+    // }
   }
 }
