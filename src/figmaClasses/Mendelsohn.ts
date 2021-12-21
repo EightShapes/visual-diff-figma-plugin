@@ -3,9 +3,10 @@ import { TestGroup } from "./TestGroup";
 import { TestWrapper } from "./TestWrapper";
 
 export class Mendelsohn {
+  static SCHEMA_KEY = "mendelsohn-schema";
   static DEFAULT_UI_HEIGHT = 360;
   static DEFAULT_UI_WIDTH = 240;
-  static ALL_TESTS_FRAME_KEY = "all-tests-frame";
+  static TEST_GROUP_KEY = "all-tests-frame";
   static SCREENSHOT_FIDELITY = 1;
   static DEFAULT_FONT = { family: "Roboto", style: "Regular" };
   static BOLD_FONT = { family: "Roboto", style: "Bold" };
@@ -58,6 +59,19 @@ export class Mendelsohn {
 
   get pageHasTests() {
     return Page.findTestsGroupFrame(figma.currentPage) !== null;
+  }
+
+  get schema() {
+    let schema = figma.root.getPluginData(Mendelsohn.SCHEMA_KEY);
+    if (schema.length === 0) {
+      schema = { pages: {} }; // Initialize an empty schema if there's none saved
+      schema = JSON.stringify(schema);
+    }
+    return JSON.parse(schema);
+  }
+
+  saveSchema(schema) {
+    figma.root.setPluginData(Mendelsohn.SCHEMA_KEY, JSON.stringify(schema));
   }
 
   getTestWrapperForNode(node) {
@@ -169,18 +183,48 @@ export class Mendelsohn {
   }
 
   async initialize() {
+    this.showUi();
+
     await figma.loadFontAsync(Mendelsohn.DEFAULT_FONT);
     await figma.loadFontAsync(Mendelsohn.BOLD_FONT);
-    this.showUi();
-    this.postCurrentState();
-    // this.sendCurrentSelectionToUi();
-    // this.sendTestGroupUpdate(this.currentTestGroups);
-    figma.on("selectionchange", () => {
-      this.handleCurrentSelectionChange();
+
+    // load/hydrate schema
+
+    let schema = this.schema;
+
+    figma.root.children.forEach((pageNode) => {
+      const testGroup = pageNode.findChild(
+        (node) => node.getPluginData(Mendelsohn.TEST_GROUP_KEY) === "true"
+      );
+
+      if (testGroup !== null) {
+        let pageData = schema.pages[pageNode.id];
+        if (pageData === undefined) {
+          schema.pages[pageNode.id] = {};
+          pageData = schema.pages[pageNode.id];
+        }
+
+        pageData.name = pageNode.name;
+        pageData.testGroupNodeId = testGroup.id;
+        pageData.tests = {};
+
+        testGroup.children.forEach((testNode) => {
+          let testData = schema.pages[pageNode.id].tests[testNode.id];
+          if (testData === undefined) {
+            schema.pages[pageNode.id].tests[testNode.id] = {};
+            testData = schema.pages[pageNode.id].tests[testNode.id];
+          }
+          testData.id = testNode.id;
+          testData.name = testNode.name;
+        });
+      }
     });
 
-    figma.on("currentpagechange", () => {
-      this.postCurrentState();
-    });
+    // TODO: Prune out-of-date pages/tests (Pages/Tests that were deleted while the plugin was closed)
+
+    this.saveSchema(schema);
+
+    // Update the Figma Canvas
+    // Update the Figma Plugin
   }
 }

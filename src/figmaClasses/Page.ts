@@ -3,7 +3,7 @@ import { Mendelsohn } from "./Mendelsohn";
 export class Page {
   static findTestsGroupFrame(pageNode) {
     return pageNode.findOne((fNode) =>
-      fNode.getPluginData(Mendelsohn.ALL_TESTS_FRAME_KEY)
+      fNode.getPluginData(Mendelsohn.TEST_GROUP_KEY)
     );
   }
 
@@ -36,7 +36,7 @@ export class Page {
     }
 
     testsGroupFrame.name = "All Tests";
-    testsGroupFrame.setPluginData(Mendelsohn.ALL_TESTS_FRAME_KEY, "true");
+    testsGroupFrame.setPluginData(Mendelsohn.TEST_GROUP_KEY, "true");
     testsGroupFrame.layoutMode = "HORIZONTAL";
     testsGroupFrame.primaryAxisSizingMode = "AUTO";
     testsGroupFrame.counterAxisSizingMode = "AUTO";
