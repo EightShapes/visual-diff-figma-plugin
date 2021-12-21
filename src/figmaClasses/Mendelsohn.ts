@@ -137,7 +137,10 @@ export class Mendelsohn {
       const Test = new TestWrapper(testId);
       await Test.runTest();
     }
-    this.postCurrentState();
+    if (testIds.length > 1) {
+      // If All tests were run, then update the current state...this is problematic if a single play button is pressed in test list view
+      this.postCurrentState();
+    }
   }
 
   postCurrentState() {
