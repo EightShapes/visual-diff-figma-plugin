@@ -37,6 +37,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           <legend>Display</legend>
           <label
             ><input
+              @change=${this._handleViewChange}
               type="radio"
               name="diff-mode"
               value="overlay"
@@ -46,6 +47,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           </label>
           <label
             ><input
+              @change=${this._handleViewChange}
               type="radio"
               name="diff-mode"
               value="side"
@@ -101,5 +103,21 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       <h2>${dateLabel}: ${dateValue}</h2>
       <h2>Result: ${resultText}</h2>
       ${this.status === "fail" ? this.renderDiffControls() : ""}`;
+  }
+
+  private _handleViewChange(e) {
+    const formData = new FormData(
+      this.shadowRoot.getElementById("display-mode-form")
+    );
+    const view = formData.get("diff-mode");
+    window.parent.postMessage(
+      {
+        pluginMessage: {
+          type: "change-test-view",
+          data: { testFrameId: this.id, view: view },
+        },
+      },
+      "*"
+    );
   }
 }

@@ -26,6 +26,8 @@ export class TestWrapper {
   static CORNER_RADIUS = 8;
   static DASH_PATTERN = [4, 4];
   static ERROR_BACKGROUND_OPACITY = 0.07;
+  static DEFAULT_VIEW_STATE = "overlay";
+  static VIEW_STATE_KEY = "mendelsohn-view-state";
 
   static async createNewTestMetadata(name) {
     const metadataFrame = figma.createFrame();
@@ -80,6 +82,10 @@ export class TestWrapper {
     testWrapper.setPluginData(
       TestWrapper.TEST_WRAPPER_CREATED_AT_KEY,
       new Date().toString()
+    );
+    testWrapper.setPluginData(
+      TestWrapper.VIEW_STATE_KEY,
+      TestWrapper.DEFAULT_VIEW_STATE
     );
     testWrapper.layoutMode = "VERTICAL";
     testWrapper.primaryAxisSizingMode = "AUTO";
@@ -145,13 +151,23 @@ export class TestWrapper {
     return figma.getNodeById(originNodeId);
   }
 
+  get viewState() {
+    return this.frame.getPluginData(TestWrapper.VIEW_STATE_KEY);
+  }
+
+  set viewState(viewState) {
+    return this.frame.setPluginData(TestWrapper.VIEW_STATE_KEY, viewState);
+  }
+
   get serializedData() {
+    console.log("SERIAL", this.viewState, this.frame.id);
     return {
       name: this.frame.name,
       id: this.frame.id,
       status: this.status,
       created_at: this.created_at,
       last_run_at: this.last_run_at,
+      view_state: this.viewState,
     };
   }
 
@@ -218,6 +234,7 @@ export class TestWrapper {
   initialize() {
     this.updateBaseline();
     this.initializeTestFrame();
+    this.setViewState(this.viewState);
   }
 
   initializeTestFrame() {
@@ -351,15 +368,25 @@ export class TestWrapper {
     const diffWidth = Math.max(this.testFrame.width, this.baselineFrame.width);
 
     this.testFrame.resize(diffWidth, diffHeight);
+    const baselineImage = this.baselineFrame.fills[0];
+    const testImage = this.testFrame.fills[0];
+    const diffImage = {
+      type: "IMAGE",
+      imageHash: figma.createImage(encodedImageDiff).hash,
+      scaleMode: "FILL",
+    };
 
-    this.testFrame.fills = [
-      {
-        type: "IMAGE",
-        imageHash: figma.createImage(encodedImageDiff).hash,
-        scaleMode: "FILL",
-      },
-    ];
+    this.testFrame.fills = [baselineImage, testImage, diffImage];
 
     this.postTestDetailUpdate();
+  }
+
+  setViewState(viewState) {
+    this.viewState = viewState;
+    if (viewState === "overlay") {
+      this.baselineFrame.visible = false;
+    } else {
+      this.baselineFrame.visible = true;
+    }
   }
 }

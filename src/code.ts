@@ -1,4 +1,5 @@
 import { Mendelsohn } from "./figmaClasses/Mendelsohn";
+import { TestWrapper } from "./figmaClasses/TestWrapper";
 
 const mendelsohn = new Mendelsohn();
 mendelsohn.initialize();
@@ -16,5 +17,13 @@ figma.ui.on("message", (message) => {
   if (message.type === "zoom-viewport") {
     const nodeIds = message.data.nodeIds;
     mendelsohn.centerViewportOnNodeIds(nodeIds);
+  }
+
+  if (message.type === "change-test-view") {
+    console.log("CTV");
+    const testFrameId = message.data.testFrameId;
+    const view = message.data.view;
+    const test = new TestWrapper(testFrameId);
+    test.setViewState(view);
   }
 });
