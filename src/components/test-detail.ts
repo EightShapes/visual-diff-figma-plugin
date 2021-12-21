@@ -1,10 +1,17 @@
-import { LitElement, html } from "lit";
+import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./m-button";
 
 @customElement("test-detail")
 class TestDetail extends MendelsohnMixins(LitElement) {
+  static styles = css`
+    * {
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+    }
+  `;
+
   @property()
   name: string;
 
@@ -19,6 +26,44 @@ class TestDetail extends MendelsohnMixins(LitElement) {
 
   @property()
   lastrunat: string;
+
+  @property({ type: String })
+  diffdisplaymode = "overlay";
+
+  renderDiffControls() {
+    return html`
+      <form id="display-mode-form">
+        <fieldset>
+          <legend>Display</legend>
+          <label
+            ><input
+              type="radio"
+              name="diff-mode"
+              value="overlay"
+              ?checked=${this.diffdisplaymode === "overlay"}
+            />
+            Overlay
+          </label>
+          <label
+            ><input
+              type="radio"
+              name="diff-mode"
+              value="side"
+              ?checked=${this.diffdisplaymode === "side"}
+            />
+            Side-by-side
+          </label>
+        </fieldset>
+        ${this.diffdisplaymode === "overlay"
+          ? html`<label for="proportion-slider">Proportion</label>
+              <input type="range" id="proportion-slider" /> `
+          : ""}
+      </form>
+      <form id="update-snapshot-form">
+        <button type="button">Save new snapshot</button>
+      </form>
+    `;
+  }
 
   render() {
     let resultText;
@@ -54,6 +99,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         >🎯</m-button
       >
       <h2>${dateLabel}: ${dateValue}</h2>
-      <h2>Result: ${resultText}</h2> `;
+      <h2>Result: ${resultText}</h2>
+      ${this.status === "fail" ? this.renderDiffControls() : ""}`;
   }
 }
