@@ -13,18 +13,49 @@ export class TestWrapper {
   static BASELINE_FRAME_KEY = "mendelsohn-baseline-frame";
   static ORIGIN_NODE_ID_KEY = "mendelsohn-origin-node-id";
   static TEST_STATUS_KEY = "test-status";
-  static TITLE_FONT_SIZE = 24;
+  static TEST_STATUS_METADATA_KEY = "test-status-metadata";
+  static UPDATED_AT_METADATA_KEY = "updated-at-metadata";
+  static METADATA_NODE_KEY = "mendelsohn-metadata-node";
+  static TITLE_FONT_SIZE = 12;
+  static SNAPSHOT_LABEL = "Mendelsohn snapshot";
+  static EMPTY_STATUS_LABEL = "No comparison run";
+  static PASS_STATUS_LABEL = "No difference detected";
+  static FAIL_STATUS_LABEL = "⚠️ Difference detected";
+  static SPACING = 16;
+  static STACK_SPACING = 10;
+  static CORNER_RADIUS = 8;
+  static DASH_PATTERN = [4, 4];
+  static ERROR_BACKGROUND_OPACITY = 0.07;
 
   static async createNewTestMetadata(name) {
     const metadataFrame = figma.createFrame();
-    metadataFrame.layoutMode = "HORIZONTAL";
+    metadataFrame.layoutMode = "VERTICAL";
     metadataFrame.primaryAxisSizingMode = "AUTO";
     metadataFrame.counterAxisSizingMode = "AUTO";
+    metadataFrame.fills = [];
+    metadataFrame.setPluginData(TestWrapper.METADATA_NODE_KEY, "true");
+
     const title = figma.createText();
-    title.fontName = Mendelsohn.DEFAULT_FONT;
+    title.fontName = Mendelsohn.BOLD_FONT;
     title.fontSize = TestWrapper.TITLE_FONT_SIZE;
-    title.characters = `${name}${TestWrapper.TEST_WRAPPER_SUFFIX}`;
+    title.characters = `${TestWrapper.SNAPSHOT_LABEL}`;
+
+    const status = figma.createText();
+    status.fontName = Mendelsohn.DEFAULT_FONT;
+    status.fontSize = TestWrapper.TITLE_FONT_SIZE;
+    status.characters = TestWrapper.EMPTY_STATUS_LABEL;
+    status.setPluginData(TestWrapper.TEST_STATUS_METADATA_KEY, "true");
+
     metadataFrame.appendChild(title);
+    metadataFrame.appendChild(status);
+
+    const updatedAt = figma.createText();
+    updatedAt.fontName = Mendelsohn.DEFAULT_FONT;
+    updatedAt.fontSize = TestWrapper.TITLE_FONT_SIZE;
+    updatedAt.characters = new Date().toString();
+    updatedAt.setPluginData(TestWrapper.UPDATED_AT_METADATA_KEY, "true");
+
+    metadataFrame.appendChild(updatedAt);
     return metadataFrame;
   }
 
@@ -33,9 +64,10 @@ export class TestWrapper {
     imageWrapper.layoutMode = "HORIZONTAL";
     imageWrapper.primaryAxisSizingMode = "AUTO";
     imageWrapper.counterAxisSizingMode = "AUTO";
-    imageWrapper.itemSpacing = Mendelsohn.LAYOUT_GUTTER;
+    imageWrapper.itemSpacing = TestWrapper.SPACING;
     imageWrapper.setPluginData(TestWrapper.IMAGE_WRAPPER_KEY, "true");
     imageWrapper.name = `${name}${TestWrapper.IMAGE_WRAPPER_SUFFIX}`;
+    imageWrapper.fills = [];
     return imageWrapper;
   }
 
@@ -52,11 +84,21 @@ export class TestWrapper {
     testWrapper.layoutMode = "VERTICAL";
     testWrapper.primaryAxisSizingMode = "AUTO";
     testWrapper.counterAxisSizingMode = "AUTO";
-    testWrapper.itemSpacing = Mendelsohn.LAYOUT_GUTTER / 2;
-    testWrapper.paddingLeft = Mendelsohn.LAYOUT_GUTTER / 2;
-    testWrapper.paddingRight = Mendelsohn.LAYOUT_GUTTER / 2;
-    testWrapper.paddingTop = Mendelsohn.LAYOUT_GUTTER;
-    testWrapper.paddingBottom = Mendelsohn.LAYOUT_GUTTER;
+    testWrapper.itemSpacing = TestWrapper.STACK_SPACING;
+    testWrapper.paddingLeft = TestWrapper.SPACING;
+    testWrapper.paddingRight = TestWrapper.SPACING;
+    testWrapper.paddingTop = TestWrapper.SPACING;
+    testWrapper.paddingBottom = TestWrapper.SPACING;
+    testWrapper.fills = [];
+    testWrapper.strokes = [
+      {
+        type: "SOLID",
+        color: Mendelsohn.BLACK_RGB,
+      },
+    ];
+    testWrapper.dashPattern = TestWrapper.DASH_PATTERN;
+    testWrapper.cornerRadius = TestWrapper.CORNER_RADIUS;
+
     testWrapper.resize(100, 100);
     const testMetadata = await TestWrapper.createNewTestMetadata(
       originNode.name
@@ -123,6 +165,26 @@ export class TestWrapper {
 
   get last_run_at() {
     return this.frame.getPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY);
+  }
+
+  get metadataNode() {
+    return this.frame.findChild(
+      (node) => node.getPluginData(TestWrapper.METADATA_NODE_KEY) === "true"
+    );
+  }
+
+  get statusMetadataNode() {
+    return this.metadataNode.findChild(
+      (node) =>
+        node.getPluginData(TestWrapper.TEST_STATUS_METADATA_KEY) === "true"
+    );
+  }
+
+  get updatedAtMetadataNode() {
+    return this.metadataNode.findChild(
+      (node) =>
+        node.getPluginData(TestWrapper.UPDATED_AT_METADATA_KEY) === "true"
+    );
   }
 
   updateBaseline() {
@@ -235,6 +297,37 @@ export class TestWrapper {
       TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY,
       new Date().toString()
     );
+    this.updatedAtMetadataNode.characters = new Date().toString();
+    this.statusMetadataNode.characters =
+      status === "pass"
+        ? TestWrapper.PASS_STATUS_LABEL
+        : TestWrapper.FAIL_STATUS_LABEL;
+
+    if (status === "fail") {
+      this.statusMetadataNode.fills = [
+        {
+          type: "SOLID",
+          color: Mendelsohn.ERROR_RGB,
+        },
+      ];
+      this.statusMetadataNode.fontName = Mendelsohn.BOLD_FONT;
+      this.frame.fills = [
+        {
+          type: "SOLID",
+          color: Mendelsohn.ERROR_RGB,
+          opacity: TestWrapper.ERROR_BACKGROUND_OPACITY,
+        },
+      ];
+    } else {
+      this.frame.fills = [];
+      this.statusMetadataNode.fontName = Mendelsohn.DEFAULT_FONT;
+      this.statusMetadataNode.fills = [
+        {
+          type: "SOLID",
+          color: Mendelsohn.BLACK_RGB,
+        },
+      ];
+    }
   }
 
   postTestDetailUpdate() {

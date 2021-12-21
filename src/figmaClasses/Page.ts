@@ -41,18 +41,11 @@ export class Page {
     testsGroupFrame.primaryAxisSizingMode = "AUTO";
     testsGroupFrame.counterAxisSizingMode = "AUTO";
     testsGroupFrame.itemSpacing = Mendelsohn.LAYOUT_GUTTER;
-    testsGroupFrame.paddingLeft = Mendelsohn.LAYOUT_GUTTER;
-    testsGroupFrame.paddingRight = Mendelsohn.LAYOUT_GUTTER;
-    testsGroupFrame.paddingTop = Mendelsohn.LAYOUT_GUTTER;
-    testsGroupFrame.paddingBottom = Mendelsohn.LAYOUT_GUTTER;
+    testsGroupFrame.paddingLeft = 0;
+    testsGroupFrame.paddingRight = 0;
+    testsGroupFrame.paddingTop = 0;
+    testsGroupFrame.paddingBottom = 0;
     testsGroupFrame.fills = [];
-    testsGroupFrame.strokes = [
-      {
-        type: "SOLID",
-        color: Mendelsohn.EIGHTSHAPES_ORANGE_RGB,
-      },
-    ];
-    testsGroupFrame.dashPattern = [10, 10];
     const nextAvailableCoordinates = this.getNextAvailableCoordinates(pageNode);
     testsGroupFrame.x = nextAvailableCoordinates.x;
     testsGroupFrame.y = nextAvailableCoordinates.y;

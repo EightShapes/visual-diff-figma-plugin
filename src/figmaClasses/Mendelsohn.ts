@@ -7,10 +7,16 @@ export class Mendelsohn {
   static DEFAULT_UI_WIDTH = 240;
   static ALL_TESTS_FRAME_KEY = "all-tests-frame";
   static SCREENSHOT_FIDELITY = 1;
-  static DEFAULT_FONT = { family: "Inter", style: "Regular" };
+  static DEFAULT_FONT = { family: "Roboto", style: "Regular" };
+  static BOLD_FONT = { family: "Roboto", style: "Bold" };
   static EIGHTSHAPES_ORANGE_RGB = {
     r: 0.909803921568627,
     g: 0.32156862745098,
+    b: 0,
+  };
+  static BLACK_RGB = {
+    r: 0,
+    g: 0,
     b: 0,
   };
   static LIGHT_GRAY_RGB = {
@@ -18,7 +24,12 @@ export class Mendelsohn {
     g: 0.898039215686275,
     b: 0.898039215686275,
   };
-  static LAYOUT_GUTTER = 60;
+  static ERROR_RGB = {
+    r: 0.949019607843137,
+    g: 0.282352941176471,
+    b: 0.133333333333333,
+  };
+  static LAYOUT_GUTTER = 24;
 
   static async convertFrameToImage(frame) {
     return await frame.exportAsync({
@@ -159,6 +170,7 @@ export class Mendelsohn {
 
   async initialize() {
     await figma.loadFontAsync(Mendelsohn.DEFAULT_FONT);
+    await figma.loadFontAsync(Mendelsohn.BOLD_FONT);
     this.showUi();
     this.postCurrentState();
     // this.sendCurrentSelectionToUi();
