@@ -27,10 +27,15 @@ figma.ui.on("message", (message) => {
   }
 
   if (message.type === "display-mode-proportion-change") {
-    console.log("CTV");
     const testFrameId = message.data.testFrameId;
     const proportion = message.data.proportion;
     const test = new TestWrapper(testFrameId);
     test.setViewProportion(proportion);
+  }
+
+  if (message.type === "save-new-snapshot") {
+    const testFrameId = message.data.testFrameId;
+    const test = new TestWrapper(testFrameId);
+    test.saveNewBasline();
   }
 });

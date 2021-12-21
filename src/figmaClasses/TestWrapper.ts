@@ -26,10 +26,10 @@ export class TestWrapper {
   static CORNER_RADIUS = 8;
   static DASH_PATTERN = [4, 4];
   static ERROR_BACKGROUND_OPACITY = 0.07;
-  static DEFAULT_VIEW_STATE = "overlay";
   static VIEW_STATE_KEY = "mendelsohn-view-state";
+  static DEFAULT_VIEW_STATE = "overlay";
   static VIEW_PROPORTION_KEY = "mendelsohn-view-proportion";
-  static DEFAULT_VIEW_PROPORTION = 0.5;
+  static DEFAULT_VIEW_PROPORTION = "0.5";
 
   static async createNewTestMetadata(name) {
     const metadataFrame = figma.createFrame();
@@ -88,6 +88,10 @@ export class TestWrapper {
     testWrapper.setPluginData(
       TestWrapper.VIEW_STATE_KEY,
       TestWrapper.DEFAULT_VIEW_STATE
+    );
+    testWrapper.setPluginData(
+      TestWrapper.VIEW_PROPORTION_KEY,
+      TestWrapper.DEFAULT_VIEW_PROPORTION
     );
     testWrapper.layoutMode = "VERTICAL";
     testWrapper.primaryAxisSizingMode = "AUTO";
@@ -226,6 +230,12 @@ export class TestWrapper {
     baseline.update();
   }
 
+  saveNewBasline() {
+    this.updateBaseline();
+    this.resetTestStatus();
+    this.postTestDetailUpdate();
+  }
+
   removeTestPlaceholderText() {
     const placeholderText = this.testFrame.children[0];
     if (placeholderText !== undefined) {
@@ -249,13 +259,14 @@ export class TestWrapper {
     this.updateBaseline();
     this.initializeTestFrame();
     this.setViewState(this.viewState);
+    this.setViewProportion(this.viewProportion);
   }
 
   initializeTestFrame() {
     if (this.testFrame === null) {
       const testFrame = TestWrapper.createNewFrameForNode(this.baselineFrame);
-      testFrame.name = `${this.originNode.name}${TestWrapper.TEST_FRAME_SUFFIX}`;
       testFrame.setPluginData(TestWrapper.TEST_FRAME_KEY, "true");
+      testFrame.name = `${this.originNode.name}${TestWrapper.TEST_FRAME_SUFFIX}`;
       testFrame.layoutMode = "VERTICAL";
       testFrame.primaryAxisAlignItems = "CENTER";
       testFrame.primaryAxisSizingMode = "FIXED";
@@ -265,15 +276,17 @@ export class TestWrapper {
           color: Mendelsohn.LIGHT_GRAY_RGB,
         },
       ];
-      const placeholderText = figma.createText();
-      placeholderText.fontName = Mendelsohn.DEFAULT_FONT;
-      placeholderText.fontSize = 12;
-      placeholderText.characters = "No results, test not yet run.";
-      placeholderText.textAlignHorizontal = "CENTER";
-      placeholderText.layoutAlign = "STRETCH";
-      testFrame.appendChild(placeholderText);
       this.imageWrapper.appendChild(testFrame);
     }
+
+    const placeholderText = figma.createText();
+    placeholderText.fontName = Mendelsohn.DEFAULT_FONT;
+    placeholderText.fontSize = 12;
+    placeholderText.characters = "No results, test not yet run.";
+    placeholderText.textAlignHorizontal = "CENTER";
+    placeholderText.layoutAlign = "STRETCH";
+    this.testFrame.fills = [];
+    this.testFrame.appendChild(placeholderText);
   }
 
   async createImageDiff() {
@@ -321,8 +334,38 @@ export class TestWrapper {
     return response;
   }
 
-  updateTestStatus(pixelDiffCount) {
-    const status = pixelDiffCount === 0 ? "pass" : "fail";
+  resetTestStatus() {
+    // RESET THE TEST
+    this.updatedAtMetadataNode.characters = new Date().toString();
+    this.statusMetadataNode.characters = TestWrapper.EMPTY_STATUS_LABEL;
+    this.statusMetadataNode.fontName = Mendelsohn.DEFAULT_FONT;
+    this.statusMetadataNode.fills = [
+      {
+        type: "SOLID",
+        color: Mendelsohn.BLACK_RGB,
+      },
+    ];
+    this.frame.fills = [];
+    this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, "");
+    this.frame.setPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY, "");
+    this.frame.setPluginData(
+      TestWrapper.TEST_WRAPPER_CREATED_AT_KEY,
+      new Date().toString()
+    );
+    this.frame.setPluginData(
+      TestWrapper.VIEW_STATE_KEY,
+      TestWrapper.DEFAULT_VIEW_STATE
+    );
+    this.frame.setPluginData(
+      TestWrapper.VIEW_PROPORTION_KEY,
+      TestWrapper.DEFAULT_VIEW_PROPORTION
+    );
+    this.initializeTestFrame();
+    this.setViewProportion(this.viewProportion);
+    this.setViewState(this.viewState);
+  }
+
+  updateTestStatus(status) {
     this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, status);
     this.frame.setPluginData(
       TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY,
@@ -372,8 +415,9 @@ export class TestWrapper {
     await this.updateTestFrame();
 
     const { encodedImageDiff, pixelDiffCount } = await this.createImageDiff();
+    const testStatus = pixelDiffCount > 0 ? "fail" : "pass";
 
-    this.updateTestStatus(pixelDiffCount);
+    this.updateTestStatus(testStatus);
 
     const diffHeight = Math.max(
       this.testFrame.height,
@@ -393,32 +437,35 @@ export class TestWrapper {
     this.testFrame.fills = [baselineImage, testImage, diffImage];
 
     this.postTestDetailUpdate();
+    this.setViewState(this.viewState);
+    this.setViewProportion(this.viewProportion);
   }
 
   setViewState(viewState) {
     this.viewState = viewState;
     if (viewState === "overlay") {
       this.baselineFrame.visible = false;
-      const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
-      testFrameFills[2].visible = false;
-      this.testFrame.fills = testFrameFills;
+      if (this.testFrame.fills.length > 1) {
+        const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
+        testFrameFills[2].visible = false;
+        this.testFrame.fills = testFrameFills;
+      }
     } else {
       this.baselineFrame.visible = true;
-      const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
-      testFrameFills[2].visible = true;
-      this.testFrame.fills = testFrameFills;
+      if (this.testFrame.fills.length > 1) {
+        const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
+        testFrameFills[2].visible = true;
+        this.testFrame.fills = testFrameFills;
+      }
     }
   }
 
   setViewProportion(viewProportion) {
     this.viewProportion = viewProportion;
-    const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
-    testFrameFills[1].opacity = parseFloat(viewProportion);
-    this.testFrame.fills = testFrameFills;
-    // if (viewState === "overlay") {
-    //   this.baselineFrame.visible = false;
-    // } else {
-    //   this.baselineFrame.visible = true;
-    // }
+    if (this.testFrame !== null && this.testFrame.fills.length > 1) {
+      const testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
+      testFrameFills[1].opacity = parseFloat(viewProportion);
+      this.testFrame.fills = testFrameFills;
+    }
   }
 }

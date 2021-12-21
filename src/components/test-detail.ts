@@ -80,7 +80,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           : ""}
       </form>
       <form id="update-snapshot-form">
-        <button type="button">Save new snapshot</button>
+        <button type="button" @click=${this._handleSaveNewSnapshot}>
+          Save new snapshot
+        </button>
       </form>
     `;
   }
@@ -161,5 +163,17 @@ class TestDetail extends MendelsohnMixins(LitElement) {
 
   private _terminateDisplayProportionChange(e) {
     this.displayModeSliderDragging = false;
+  }
+
+  private _handleSaveNewSnapshot(e) {
+    window.parent.postMessage(
+      {
+        pluginMessage: {
+          type: "save-new-snapshot",
+          data: { testFrameId: this.id },
+        },
+      },
+      "*"
+    );
   }
 }
