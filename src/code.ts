@@ -31,4 +31,12 @@ figma.ui.on("message", (message) => {
     const test = new TestWrapper(testFrameId);
     test.saveNewBasline();
   }
+
+  if (message.type === "request-test-detail-data") {
+    console.log("RTDD");
+    const testFrameId = message.data.testFrameId;
+    const test = new TestWrapper(testFrameId);
+    console.log(test);
+    test.postTestDetailUpdate();
+  }
 });

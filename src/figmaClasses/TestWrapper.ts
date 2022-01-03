@@ -27,7 +27,7 @@ export class TestWrapper {
   static DASH_PATTERN = [4, 4];
   static ERROR_BACKGROUND_OPACITY = 0.07;
   static VIEW_PROPORTION_KEY = "mendelsohn-view-proportion";
-  static DEFAULT_VIEW_PROPORTION = "0.5";
+  static DEFAULT_VIEW_PROPORTION = "0";
 
   static async createNewTestMetadata(name) {
     const metadataFrame = figma.createFrame();
@@ -54,7 +54,7 @@ export class TestWrapper {
     const updatedAt = figma.createText();
     updatedAt.fontName = Mendelsohn.DEFAULT_FONT;
     updatedAt.fontSize = TestWrapper.TITLE_FONT_SIZE;
-    updatedAt.characters = new Date().toString();
+    updatedAt.characters = Mendelsohn.timestamp;
     updatedAt.setPluginData(TestWrapper.UPDATED_AT_METADATA_KEY, "true");
 
     metadataFrame.appendChild(updatedAt);
@@ -81,7 +81,7 @@ export class TestWrapper {
     testWrapper.setPluginData(TestWrapper.ORIGIN_NODE_ID_KEY, originNode.id);
     testWrapper.setPluginData(
       TestWrapper.TEST_WRAPPER_CREATED_AT_KEY,
-      new Date().toString()
+      Mendelsohn.timestamp
     );
     testWrapper.setPluginData(
       TestWrapper.VIEW_PROPORTION_KEY,
@@ -185,6 +185,13 @@ export class TestWrapper {
     return this.frame.getPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY);
   }
 
+  set last_run_at(last_run_at) {
+    this.frame.setPluginData(
+      TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY,
+      last_run_at
+    );
+  }
+
   get metadataNode() {
     return this.frame.findChild(
       (node) => node.getPluginData(TestWrapper.METADATA_NODE_KEY) === "true"
@@ -268,7 +275,12 @@ export class TestWrapper {
     placeholderText.characters = "No results, test not yet run.";
     placeholderText.textAlignHorizontal = "CENTER";
     placeholderText.layoutAlign = "STRETCH";
-    this.testFrame.fills = [];
+    this.testFrame.fills = [
+      {
+        type: "SOLID",
+        color: Mendelsohn.WHITE_RGB,
+      },
+    ];
     this.testFrame.appendChild(placeholderText);
   }
 
@@ -319,7 +331,7 @@ export class TestWrapper {
 
   resetTestStatus() {
     // RESET THE TEST
-    this.updatedAtMetadataNode.characters = new Date().toString();
+    this.updatedAtMetadataNode.characters = Mendelsohn.timestamp;
     this.statusMetadataNode.characters = TestWrapper.EMPTY_STATUS_LABEL;
     this.statusMetadataNode.fontName = Mendelsohn.DEFAULT_FONT;
     this.statusMetadataNode.fills = [
@@ -331,9 +343,10 @@ export class TestWrapper {
     this.frame.fills = [];
     this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, "");
     this.frame.setPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY, "");
+    this.last_run_at = "";
     this.frame.setPluginData(
       TestWrapper.TEST_WRAPPER_CREATED_AT_KEY,
-      new Date().toString()
+      Mendelsohn.timestamp
     );
     this.frame.setPluginData(
       TestWrapper.VIEW_PROPORTION_KEY,
@@ -344,12 +357,10 @@ export class TestWrapper {
   }
 
   updateTestStatus(status) {
+    const timestamp = Mendelsohn.timestamp;
     this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, status);
-    this.frame.setPluginData(
-      TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY,
-      new Date().toString()
-    );
-    this.updatedAtMetadataNode.characters = new Date().toString();
+    this.last_run_at = timestamp;
+    this.updatedAtMetadataNode.characters = timestamp;
     this.statusMetadataNode.characters =
       status === "pass"
         ? TestWrapper.PASS_STATUS_LABEL
@@ -404,7 +415,8 @@ export class TestWrapper {
     const diffWidth = Math.max(this.testFrame.width, this.baselineFrame.width);
 
     this.testFrame.resize(diffWidth, diffHeight);
-    const testImage = this.testFrame.fills[0];
+    const testImage = JSON.parse(JSON.stringify(this.testFrame.fills[0]));
+    testImage.scaleMode = "FIT";
     const diffImage = {
       type: "IMAGE",
       imageHash: figma.createImage(encodedImageDiff).hash,

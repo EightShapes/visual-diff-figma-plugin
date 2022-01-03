@@ -51,6 +51,7 @@ class ViewportManager extends LitElement {
           status=${this.activetestwrapper.status}
           createdat=${this.activetestwrapper.created_at}
           lastrunat=${this.activetestwrapper.last_run_at}
+          diffdisplaymode=${this.activetestwrapper.view_state}
           viewproportion=${this.activetestwrapper.view_proportion}
         ></test-detail>`;
         break;
@@ -81,7 +82,16 @@ class ViewportManager extends LitElement {
   private _changeViewListener(e: CustomEvent) {
     const newView = e.detail.newView;
     if (newView === "test-detail") {
-      this.activetestwrapper = e.detail.test;
+      this.activetestwrapper.id = e.detail.test.id; // Brittle & weird, have to set this so the switch statement in ui-scripts.js will update the test data
+      window.parent.postMessage(
+        {
+          pluginMessage: {
+            type: "request-test-detail-data",
+            data: { testFrameId: e.detail.test.id },
+          },
+        },
+        "*"
+      );
     }
     this.view = newView;
   }

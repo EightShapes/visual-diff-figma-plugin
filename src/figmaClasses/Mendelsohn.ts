@@ -19,6 +19,11 @@ export class Mendelsohn {
     g: 0,
     b: 0,
   };
+  static WHITE_RGB = {
+    r: 1,
+    g: 1,
+    b: 1,
+  };
   static LIGHT_GRAY_RGB = {
     r: 0.898039215686275,
     g: 0.898039215686275,
@@ -36,6 +41,17 @@ export class Mendelsohn {
       format: "PNG",
       constraint: { type: "SCALE", value: Mendelsohn.SCREENSHOT_FIDELITY },
     });
+  }
+
+  static DATE_FORMAT_OPTIONS = {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  };
+
+  static get timestamp() {
+    const now = new Date();
+    return now.toLocaleTimeString(undefined, Mendelsohn.DATE_FORMAT_OPTIONS);
   }
 
   get currentSelectionSerialized() {
