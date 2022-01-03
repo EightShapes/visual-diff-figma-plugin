@@ -145,11 +145,12 @@ export class TestWrapper {
     );
   }
 
+  get originNodeId() {
+    return this.frame.getPluginData(TestWrapper.ORIGIN_NODE_ID_KEY);
+  }
+
   get originNode() {
-    const originNodeId = this.frame.getPluginData(
-      TestWrapper.ORIGIN_NODE_ID_KEY
-    );
-    return figma.getNodeById(originNodeId);
+    return figma.getNodeById(this.originNodeId);
   }
 
   get viewProportion() {
@@ -167,10 +168,11 @@ export class TestWrapper {
     return {
       name: this.frame.name,
       id: this.frame.id,
+      originNodeId: this.originNodeId,
       status: this.status,
-      created_at: this.created_at,
-      last_run_at: this.last_run_at,
-      view_proportion: this.viewProportion,
+      createdAt: this.createdAt,
+      lastRunAt: this.lastRunAt,
+      viewProportion: this.viewProportion,
     };
   }
 
@@ -178,18 +180,18 @@ export class TestWrapper {
     return this.frame.getPluginData(TestWrapper.TEST_STATUS_KEY);
   }
 
-  get created_at() {
+  get createdAt() {
     return this.frame.getPluginData(TestWrapper.TEST_WRAPPER_CREATED_AT_KEY);
   }
 
-  get last_run_at() {
+  get lastRunAt() {
     return this.frame.getPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY);
   }
 
-  set last_run_at(last_run_at) {
+  set lastRunAt(lastRunAt) {
     this.frame.setPluginData(
       TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY,
-      last_run_at
+      lastRunAt
     );
   }
 
@@ -345,7 +347,7 @@ export class TestWrapper {
     this.frame.fills = [];
     this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, "");
     this.frame.setPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY, "");
-    this.last_run_at = "";
+    this.lastRunAt = "";
     this.frame.setPluginData(
       TestWrapper.TEST_WRAPPER_CREATED_AT_KEY,
       Mendelsohn.timestamp
@@ -361,7 +363,7 @@ export class TestWrapper {
   updateTestStatus(status) {
     const timestamp = Mendelsohn.timestamp;
     this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, status);
-    this.last_run_at = timestamp;
+    this.lastRunAt = timestamp;
     this.updatedAtMetadataNode.characters = timestamp;
     this.statusMetadataNode.characters =
       status === "pass"

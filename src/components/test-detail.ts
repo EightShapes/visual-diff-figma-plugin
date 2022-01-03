@@ -19,6 +19,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   id: string;
 
   @property()
+  originnodeid: string;
+
+  @property()
   status: string;
 
   @property()
@@ -91,6 +94,12 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           this._requestViewportZoom([this.id]);
         }}
         >🎯</m-button
+      >
+      <m-button
+        @click=${() => {
+          this._requestViewportZoom([this.originnodeid]);
+        }}
+        >Go to origin</m-button
       >
       <h2>${dateLabel}: ${dateValue}</h2>
       <h2>Result: ${resultText}</h2>

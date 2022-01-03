@@ -49,10 +49,10 @@ class ViewportManager extends LitElement {
           name=${this.activetestwrapper.name}
           id=${this.activetestwrapper.id}
           status=${this.activetestwrapper.status}
-          createdat=${this.activetestwrapper.created_at}
-          lastrunat=${this.activetestwrapper.last_run_at}
-          diffdisplaymode=${this.activetestwrapper.view_state}
-          viewproportion=${this.activetestwrapper.view_proportion}
+          createdat=${this.activetestwrapper.createdAt}
+          lastrunat=${this.activetestwrapper.lastRunAt}
+          viewproportion=${this.activetestwrapper.viewProportion}
+          originnodeid=${this.activetestwrapper.originNodeId}
         ></test-detail>`;
         break;
       case "tutorial":
