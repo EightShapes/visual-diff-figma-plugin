@@ -124,6 +124,7 @@ export class TestWrapper {
 
   constructor(testFrameId) {
     this.frame = figma.getNodeById(testFrameId); // TODO: Research the arbitrary assignment of instance properties, is this valid?
+    console.log("CONSTRUCTOR FRAME", this.frame);
   }
 
   get imageWrapper() {

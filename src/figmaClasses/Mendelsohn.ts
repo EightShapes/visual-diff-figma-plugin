@@ -155,14 +155,21 @@ export class Mendelsohn {
   }
 
   centerViewportOnNodeIds(nodeIds) {
-    const nodes = nodeIds.map((id) => figma.getNodeById(id));
+    const nodes = nodeIds
+      .map((id) => figma.getNodeById(id))
+      .filter((node) => node !== null);
     figma.viewport.scrollAndZoomIntoView(nodes);
   }
 
   async runTests(testIds) {
     for (const testId of testIds) {
-      const Test = new TestWrapper(testId);
-      await Test.runTest();
+      const test = new TestWrapper(testId);
+      if (test.frame !== null) {
+        await test.runTest();
+      } else {
+        figma.notify(`Test not found with id: ${testId}`, { error: true });
+        // TODO: Update the UI since the canvas changed and the test can't be found.
+      }
     }
     if (testIds.length > 1) {
       // If All tests were run, then update the current state...this is problematic if a single play button is pressed in test list view
