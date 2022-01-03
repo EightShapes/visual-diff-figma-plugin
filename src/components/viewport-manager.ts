@@ -51,7 +51,6 @@ class ViewportManager extends LitElement {
           status=${this.activetestwrapper.status}
           createdat=${this.activetestwrapper.created_at}
           lastrunat=${this.activetestwrapper.last_run_at}
-          diffdisplaymode=${this.activetestwrapper.view_state}
           viewproportion=${this.activetestwrapper.view_proportion}
         ></test-detail>`;
         break;

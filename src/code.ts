@@ -19,13 +19,6 @@ figma.ui.on("message", (message) => {
     mendelsohn.centerViewportOnNodeIds(nodeIds);
   }
 
-  if (message.type === "change-test-view") {
-    const testFrameId = message.data.testFrameId;
-    const view = message.data.view;
-    const test = new TestWrapper(testFrameId);
-    test.setViewState(view);
-  }
-
   if (message.type === "display-mode-proportion-change") {
     const testFrameId = message.data.testFrameId;
     const proportion = message.data.proportion;

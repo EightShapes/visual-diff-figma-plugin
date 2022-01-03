@@ -27,9 +27,6 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   @property()
   lastrunat: string;
 
-  @property({ type: String })
-  diffdisplaymode = "overlay";
-
   @property({ type: Number })
   viewproportion = 0.5;
 
@@ -41,43 +38,18 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   renderDiffControls() {
     return html`
       <form id="display-mode-form">
-        <fieldset>
-          <legend>Display</legend>
-          <label
-            ><input
-              @change=${this._handleDisplayModeChange}
-              type="radio"
-              name="diff-mode"
-              value="overlay"
-              ?checked=${this.diffdisplaymode === "overlay"}
-            />
-            Overlay
-          </label>
-          <label
-            ><input
-              @change=${this._handleDisplayModeChange}
-              type="radio"
-              name="diff-mode"
-              value="side"
-              ?checked=${this.diffdisplaymode === "side"}
-            />
-            Side-by-side
-          </label>
-        </fieldset>
-        ${this.diffdisplaymode === "overlay"
-          ? html`<label for="proportion-slider">Proportion</label>
-              <input
-                type="range"
-                id="proportion-slider"
-                @mousedown=${this._initiateDisplayProportionChange}
-                @mouseup=${this._terminateDisplayProportionChange}
-                @mousemove=${this._handleDisplayProportionChange}
-                min="0"
-                max="1"
-                step="0.05"
-                value=${this.viewproportion}
-              /> `
-          : ""}
+        <label for="proportion-slider">Difference</label>
+        <input
+          type="range"
+          id="proportion-slider"
+          @mousedown=${this._initiateDisplayProportionChange}
+          @mouseup=${this._terminateDisplayProportionChange}
+          @mousemove=${this._handleDisplayProportionChange}
+          min="0"
+          max="1"
+          step="0.05"
+          value=${this.viewproportion}
+        />
       </form>
       <form id="update-snapshot-form">
         <button type="button" @click=${this._handleSaveNewSnapshot}>
@@ -123,24 +95,6 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       <h2>${dateLabel}: ${dateValue}</h2>
       <h2>Result: ${resultText}</h2>
       ${this.status === "fail" ? this.renderDiffControls() : ""}`;
-  }
-
-  private _handleDisplayModeChange(e) {
-    const formData = new FormData(
-      this.shadowRoot.getElementById("display-mode-form")
-    );
-    const view = formData.get("diff-mode");
-    this.diffdisplaymode = view;
-
-    window.parent.postMessage(
-      {
-        pluginMessage: {
-          type: "change-test-view",
-          data: { testFrameId: this.id, view: view },
-        },
-      },
-      "*"
-    );
   }
 
   private _handleDisplayProportionChange(e) {
