@@ -6,17 +6,17 @@ const imageProcessor = document.querySelector("image-processor");
 
 // Handle all messages received from the figma file
 onmessage = async (message) => {
-  console.log(message);
   switch (message.data.pluginMessage.type) {
+    case "initialize-view":
+      const pageHasTests = message.data.pluginMessage.data;
+      viewportManager.view = pageHasTests ? "test-list" : "create-tests";
+      break;
     case "state-update":
       const currentState = message.data.pluginMessage.data;
       viewportManager.pagehastests = currentState.pageHasTests;
       viewportManager.testgroupframes = currentState.testGroups;
       viewportManager.currentselection = currentState.currentSelection;
       viewportManager.currentpageid = currentState.currentPageId;
-      viewportManager.view = currentState.pageHasTests
-        ? "test-list"
-        : "create-tests";
       break;
     case "current-selection-changed":
       viewportManager.currentselection = message.data.pluginMessage.data;

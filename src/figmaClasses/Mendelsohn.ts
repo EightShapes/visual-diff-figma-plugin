@@ -54,13 +54,13 @@ export class Mendelsohn {
     return now.toLocaleTimeString(undefined, Mendelsohn.DATE_FORMAT_OPTIONS);
   }
 
-  get currentSelectionSerialized() {
+  static get currentSelectionSerialized() {
     return figma.currentPage.selection.map((fNode) => {
       return { name: fNode.name, id: fNode.id };
     });
   }
 
-  get currentTestGroups() {
+  static get currentTestGroups() {
     let testGroups = [];
     figma.root.children.forEach((pageNode) => {
       const testGroupFrame = Page.findTestsGroupFrame(pageNode);
@@ -72,7 +72,7 @@ export class Mendelsohn {
     return testGroups;
   }
 
-  get pageHasTests() {
+  static get pageHasTests() {
     return Page.findTestsGroupFrame(figma.currentPage) !== null;
   }
 
@@ -115,7 +115,7 @@ export class Mendelsohn {
   sendCurrentSelectionToUi() {
     figma.ui.postMessage({
       type: "current-selection-changed",
-      data: this.currentSelectionSerialized,
+      data: Mendelsohn.currentSelectionSerialized,
     });
   }
 
@@ -151,7 +151,7 @@ export class Mendelsohn {
       originNodes.map((node) => node.id)
     );
     figma.viewport.scrollAndZoomIntoView(newTestFrames);
-    this.postCurrentState();
+    Mendelsohn.postCurrentState();
   }
 
   centerViewportOnNodeIds(nodeIds) {
@@ -173,16 +173,17 @@ export class Mendelsohn {
     }
     if (testIds.length > 1) {
       // If All tests were run, then update the current state...this is problematic if a single play button is pressed in test list view
-      this.postCurrentState();
+      Mendelsohn.postCurrentState();
     }
   }
 
-  postCurrentState() {
+  static postCurrentState() {
+    // Might be problematic that this is a class method and not an instance method
     const currentState = {
-      currentSelection: this.currentSelectionSerialized,
+      currentSelection: Mendelsohn.currentSelectionSerialized,
       currentPageId: figma.currentPage.id,
-      testGroups: this.currentTestGroups, // TODO: This is expensive to serialize, limit to current page test group
-      pageHasTests: this.pageHasTests,
+      testGroups: Mendelsohn.currentTestGroups, // TODO: This is expensive to serialize, limit to current page test group
+      pageHasTests: Mendelsohn.pageHasTests,
     };
 
     figma.ui.postMessage({
@@ -195,15 +196,18 @@ export class Mendelsohn {
     await figma.loadFontAsync(Mendelsohn.DEFAULT_FONT);
     await figma.loadFontAsync(Mendelsohn.BOLD_FONT);
     this.showUi();
-    this.postCurrentState();
-    // this.sendCurrentSelectionToUi();
-    // this.sendTestGroupUpdate(this.currentTestGroups);
+    Mendelsohn.postCurrentState();
+    figma.ui.postMessage({
+      type: "initialize-view",
+      data: Mendelsohn.pageHasTests,
+    });
+
     figma.on("selectionchange", () => {
       this.handleCurrentSelectionChange();
     });
 
     figma.on("currentpagechange", () => {
-      this.postCurrentState();
+      Mendelsohn.postCurrentState();
     });
   }
 }

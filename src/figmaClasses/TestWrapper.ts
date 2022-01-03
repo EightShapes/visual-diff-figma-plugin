@@ -226,6 +226,7 @@ export class TestWrapper {
     this.updateBaseline();
     this.resetTestStatus();
     this.postTestDetailUpdate();
+    Mendelsohn.postCurrentState();
   }
 
   removeTestPlaceholderText() {
@@ -427,6 +428,7 @@ export class TestWrapper {
     this.testFrame.fills = [testImage, diffImage];
 
     this.postTestDetailUpdate();
+    Mendelsohn.postCurrentState();
     this.setViewProportion(this.viewProportion);
   }
 
