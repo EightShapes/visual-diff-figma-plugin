@@ -1,6 +1,7 @@
 import { Mendelsohn } from "./Mendelsohn";
 import { Baseline } from "./Baseline";
 import { LanguageConstants } from "../LanguageConstants";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 
 export class TestWrapper {
   static TEST_WRAPPER_SUFFIX = " Test";
@@ -31,7 +32,7 @@ export class TestWrapper {
     const metadataFrame = figma.createFrame();
     metadataFrame.layoutMode = "VERTICAL";
     metadataFrame.layoutAlign = "STRETCH";
-    metadataFrame.primaryAxisSizingMode = "FIXED";
+    metadataFrame.primaryAxisSizingMode = "AUTO";
     metadataFrame.counterAxisSizingMode = "AUTO";
     metadataFrame.fills = [];
     metadataFrame.setPluginData(TestWrapper.METADATA_NODE_KEY, "true");
@@ -126,7 +127,6 @@ export class TestWrapper {
 
   constructor(testFrameId) {
     this.frame = figma.getNodeById(testFrameId); // TODO: Research the arbitrary assignment of instance properties, is this valid?
-    console.log("CONSTRUCTOR FRAME", this.frame);
   }
 
   get imageWrapper() {
@@ -215,7 +215,14 @@ export class TestWrapper {
   }
 
   showImageTooLargeError(snapshotType) {
-    this.updateTestStatus("baseline-too-large");
+    switch (snapshotType) {
+      case "baseline":
+        this.updateTestStatus(MendelsohnConstants.BASELINE_TOO_LARGE);
+        break;
+      case "test":
+        this.updateTestStatus(MendelsohnConstants.TEST_TOO_LARGE);
+        break;
+    }
   }
 
   updateBaseline() {
@@ -246,11 +253,17 @@ export class TestWrapper {
     const screenshotBytes = await Mendelsohn.convertFrameToImage(
       this.originNode
     );
-    const screenshotImageHash = figma.createImage(screenshotBytes).hash;
-    this.testFrame.fills = [
-      { type: "IMAGE", imageHash: screenshotImageHash, scaleMode: "FILL" },
-    ];
-    this.testFrame.resize(this.originNode.width, this.originNode.height);
+    try {
+      const screenshotImageHash = figma.createImage(screenshotBytes).hash;
+      this.testFrame.fills = [
+        { type: "IMAGE", imageHash: screenshotImageHash, scaleMode: "FILL" },
+      ];
+      this.testFrame.resize(this.originNode.width, this.originNode.height);
+      return true;
+    } catch {
+      this.showImageTooLargeError("test");
+      return false;
+    }
   }
 
   initialize() {
@@ -367,7 +380,10 @@ export class TestWrapper {
     const timestamp = Mendelsohn.timestamp;
     this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, status);
 
-    if (status !== "baseline-too-large") {
+    if (
+      status !== MendelsohnConstants.BASELINE_TOO_LARGE &&
+      status !== MendelsohnConstants.TEST_TOO_LARGE
+    ) {
       this.lastRunAt = timestamp;
       this.updatedAtMetadataNode.characters = timestamp;
     }
@@ -377,16 +393,24 @@ export class TestWrapper {
       case "pass":
         statusMessage = LanguageConstants.PASS_STATUS_LABEL;
         break;
-      case "baseline-too-large":
+      case MendelsohnConstants.BASELINE_TOO_LARGE:
         statusMessage = LanguageConstants.BASELINE_TOO_LARGE_STATUS_LABEL;
+        break;
+      case MendelsohnConstants.TEST_TOO_LARGE:
+        statusMessage = LanguageConstants.TEST_TOO_LARGE_STATUS_LABEL;
         break;
       case "fail":
         statusMessage = LanguageConstants.FAIL_STATUS_LABEL;
         break;
     }
+
     this.statusMetadataNode.characters = statusMessage;
 
-    if (status === "fail" || status === "baseline-too-large") {
+    if (
+      status === "fail" ||
+      status === MendelsohnConstants.BASELINE_TOO_LARGE ||
+      status === MendelsohnConstants.TEST_TOO_LARGE
+    ) {
       this.statusMetadataNode.fills = [
         {
           type: "SOLID",
@@ -412,6 +436,7 @@ export class TestWrapper {
       ];
     }
 
+    this.postTestDetailUpdate();
     Mendelsohn.postCurrentState();
   }
 
@@ -423,33 +448,38 @@ export class TestWrapper {
   }
 
   async runTest() {
-    await this.updateTestFrame();
+    const testFrameUpdateSuccessful = await this.updateTestFrame();
 
-    const { encodedImageDiff, pixelDiffCount } = await this.createImageDiff();
-    const testStatus = pixelDiffCount > 0 ? "fail" : "pass";
+    if (testFrameUpdateSuccessful) {
+      const { encodedImageDiff, pixelDiffCount } = await this.createImageDiff();
+      const testStatus = pixelDiffCount > 0 ? "fail" : "pass";
 
-    this.updateTestStatus(testStatus);
+      this.updateTestStatus(testStatus);
 
-    const diffHeight = Math.max(
-      this.testFrame.height,
-      this.baselineFrame.height
-    );
-    const diffWidth = Math.max(this.testFrame.width, this.baselineFrame.width);
+      const diffHeight = Math.max(
+        this.testFrame.height,
+        this.baselineFrame.height
+      );
+      const diffWidth = Math.max(
+        this.testFrame.width,
+        this.baselineFrame.width
+      );
 
-    this.testFrame.resize(diffWidth, diffHeight);
-    const testImage = JSON.parse(JSON.stringify(this.testFrame.fills[0]));
-    testImage.scaleMode = "FIT";
-    const diffImage = {
-      type: "IMAGE",
-      imageHash: figma.createImage(encodedImageDiff).hash,
-      scaleMode: "FILL",
-    };
+      this.testFrame.resize(diffWidth, diffHeight);
+      const testImage = JSON.parse(JSON.stringify(this.testFrame.fills[0]));
+      testImage.scaleMode = "FIT";
+      const diffImage = {
+        type: "IMAGE",
+        imageHash: figma.createImage(encodedImageDiff).hash,
+        scaleMode: "FILL",
+      };
 
-    this.testFrame.fills = [testImage, diffImage];
+      this.testFrame.fills = [testImage, diffImage];
 
-    this.postTestDetailUpdate();
-    Mendelsohn.postCurrentState();
-    this.setViewProportion(this.viewProportion);
+      this.postTestDetailUpdate();
+      Mendelsohn.postCurrentState();
+      this.setViewProportion(this.viewProportion);
+    }
   }
 
   setViewProportion(viewProportion) {

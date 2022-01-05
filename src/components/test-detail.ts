@@ -3,6 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import { LanguageConstants } from "../LanguageConstants";
 import "./m-button";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 
 @customElement("test-detail")
 class TestDetail extends MendelsohnMixins(LitElement) {
@@ -75,8 +76,11 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       case "fail":
         resultText = LanguageConstants.FAIL_STATUS_LABEL;
         break;
-      case "baseline-too-large":
+      case MendelsohnConstants.BASELINE_TOO_LARGE:
         resultText = LanguageConstants.BASELINE_TOO_LARGE_STATUS_LABEL;
+        break;
+      case MendelsohnConstants.TEST_TOO_LARGE:
+        resultText = LanguageConstants.TEST_TOO_LARGE_STATUS_LABEL;
         break;
       default:
         resultText = "No comparison run";
@@ -86,11 +90,23 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     const dateValue =
       this.status.length === 0 ? this.createdat : this.lastrunat;
 
+    const showDateStamp =
+      this.status !== MendelsohnConstants.BASELINE_TOO_LARGE &&
+      this.status !== MendelsohnConstants.TEST_TOO_LARGE;
+
+    const showResultLabel =
+      this.status !== MendelsohnConstants.BASELINE_TOO_LARGE &&
+      this.status !== MendelsohnConstants.TEST_TOO_LARGE;
+
+    const showSaveSnapshotForm =
+      this.status === "fail" ||
+      this.status === MendelsohnConstants.BASELINE_TOO_LARGE;
+
     return html`<m-button @click=${this._changeView} data-view="test-list"
         >Back</m-button
       >
       <h1>${this.name}</h1>
-      ${this.status === "baseline-too-large"
+      ${this.status === MendelsohnConstants.BASELINE_TOO_LARGE
         ? ""
         : html`<m-button
             @click=${() => {
@@ -110,16 +126,10 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         }}
         >Go to origin</m-button
       >
-      ${this.status === "baseline-too-large"
-        ? ""
-        : html`<h2>${dateLabel}: ${dateValue}</h2>`}
-      <h2>
-        ${this.status === "baseline-too-large" ? "" : "Result:"} ${resultText}
-      </h2>
+      ${showDateStamp ? html`<h2>${dateLabel}: ${dateValue}</h2>` : ""}
+      <h2>${showResultLabel ? "Result:" : ""} ${resultText}</h2>
       ${this.status === "fail" ? this.renderDiffControls() : ""}
-      ${this.status === "fail" || this.status === "baseline-too-large"
-        ? this.renderSaveNewSnapshotForm()
-        : ""}`;
+      ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}`;
   }
 
   private _handleDisplayProportionChange(e) {

@@ -27,8 +27,6 @@ class ViewportManager extends LitElement {
   render() {
     let viewOutput;
 
-    console.log(this.activetestwrapper);
-
     switch (this.view) {
       case "create-tests":
         viewOutput = html`<create-tests

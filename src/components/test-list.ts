@@ -2,6 +2,7 @@ import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./m-button";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 
 @customElement("test-list")
 class TestList extends MendelsohnMixins(LitElement) {
@@ -59,12 +60,12 @@ class TestList extends MendelsohnMixins(LitElement) {
       <ul>
         ${currentPage.tests.map((test) => {
           let statusIcon;
-          console.log(test.status);
           switch (test.status) {
             case "pass":
               statusIcon = "✅";
               break;
-            case "baseline-too-large":
+            case MendelsohnConstants.TEST_TOO_LARGE:
+            case MendelsohnConstants.BASELINE_TOO_LARGE:
             case "fail":
               statusIcon = "⚠️";
               break;
