@@ -1,5 +1,6 @@
 import { Mendelsohn } from "./Mendelsohn";
 import { Baseline } from "./Baseline";
+import LanguageConstants from "../languageConstants";
 
 export class TestWrapper {
   static TEST_WRAPPER_SUFFIX = " Test";
@@ -18,9 +19,6 @@ export class TestWrapper {
   static METADATA_NODE_KEY = "mendelsohn-metadata-node";
   static TITLE_FONT_SIZE = 12;
   static SNAPSHOT_LABEL = "Mendelsohn snapshot";
-  static EMPTY_STATUS_LABEL = "No comparison run";
-  static PASS_STATUS_LABEL = "No difference detected";
-  static FAIL_STATUS_LABEL = "⚠️ Difference detected";
   static SPACING = 16;
   static STACK_SPACING = 10;
   static CORNER_RADIUS = 8;
@@ -45,7 +43,7 @@ export class TestWrapper {
     const status = figma.createText();
     status.fontName = Mendelsohn.DEFAULT_FONT;
     status.fontSize = TestWrapper.TITLE_FONT_SIZE;
-    status.characters = TestWrapper.EMPTY_STATUS_LABEL;
+    status.characters = LanguageConstants.EMPTY_STATUS_LABEL;
     status.setPluginData(TestWrapper.TEST_STATUS_METADATA_KEY, "true");
 
     metadataFrame.appendChild(title);
@@ -158,10 +156,7 @@ export class TestWrapper {
   }
 
   set viewProportion(viewProportion) {
-    return this.frame.setPluginData(
-      TestWrapper.VIEW_PROPORTION_KEY,
-      viewProportion
-    );
+    this.frame.setPluginData(TestWrapper.VIEW_PROPORTION_KEY, viewProportion);
   }
 
   get serializedData() {
@@ -213,6 +208,14 @@ export class TestWrapper {
       (node) =>
         node.getPluginData(TestWrapper.UPDATED_AT_METADATA_KEY) === "true"
     );
+  }
+
+  showImageTooLargeError(snapshotType) {
+    figma.notify(
+      `The ${snapshotType} snapshot is too large to be created. Please make sure the width of the ${snapshotType} is less than 4096px and the height of the ${snapshotType} is less than 4096px.`
+    );
+
+    this.updateTestStatus("baseline-too-large");
   }
 
   updateBaseline() {
@@ -336,7 +339,7 @@ export class TestWrapper {
   resetTestStatus() {
     // RESET THE TEST
     this.updatedAtMetadataNode.characters = Mendelsohn.timestamp;
-    this.statusMetadataNode.characters = TestWrapper.EMPTY_STATUS_LABEL;
+    this.statusMetadataNode.characters = LanguageConstants.EMPTY_STATUS_LABEL;
     this.statusMetadataNode.fontName = Mendelsohn.DEFAULT_FONT;
     this.statusMetadataNode.fills = [
       {
@@ -363,14 +366,27 @@ export class TestWrapper {
   updateTestStatus(status) {
     const timestamp = Mendelsohn.timestamp;
     this.frame.setPluginData(TestWrapper.TEST_STATUS_KEY, status);
-    this.lastRunAt = timestamp;
-    this.updatedAtMetadataNode.characters = timestamp;
-    this.statusMetadataNode.characters =
-      status === "pass"
-        ? TestWrapper.PASS_STATUS_LABEL
-        : TestWrapper.FAIL_STATUS_LABEL;
 
-    if (status === "fail") {
+    if (status !== "baseline-too-large") {
+      this.lastRunAt = timestamp;
+      this.updatedAtMetadataNode.characters = timestamp;
+    }
+
+    let statusMessage;
+    switch (status) {
+      case "pass":
+        statusMessage = LanguageConstants.PASS_STATUS_LABEL;
+        break;
+      case "baseline-too-large":
+        statusMessage = LanguageConstants.BASELINE_TOO_LARGE_STATUS_LABEL;
+        break;
+      case "fail":
+        statusMessage = LanguageConstants.FAIL_STATUS_LABEL;
+        break;
+    }
+    this.statusMetadataNode.characters = statusMessage;
+
+    if (status === "fail" || status === "baseline-too-large") {
       this.statusMetadataNode.fills = [
         {
           type: "SOLID",
@@ -395,6 +411,8 @@ export class TestWrapper {
         },
       ];
     }
+
+    Mendelsohn.postCurrentState();
   }
 
   postTestDetailUpdate() {

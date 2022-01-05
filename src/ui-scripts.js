@@ -7,9 +7,9 @@ const imageProcessor = document.querySelector("image-processor");
 // Handle all messages received from the figma file
 onmessage = async (message) => {
   switch (message.data.pluginMessage.type) {
-    case "initialize-view":
-      const pageHasTests = message.data.pluginMessage.data;
-      viewportManager.view = pageHasTests ? "test-list" : "create-tests";
+    case "change-view":
+      const newView = message.data.pluginMessage.data;
+      viewportManager.view = newView;
       break;
     case "state-update":
       const currentState = message.data.pluginMessage.data;

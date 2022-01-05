@@ -59,10 +59,12 @@ class TestList extends MendelsohnMixins(LitElement) {
       <ul>
         ${currentPage.tests.map((test) => {
           let statusIcon;
+          console.log(test.status);
           switch (test.status) {
             case "pass":
               statusIcon = "✅";
               break;
+            case "baseline-too-large":
             case "fail":
               statusIcon = "⚠️";
               break;

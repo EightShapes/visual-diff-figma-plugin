@@ -1,6 +1,7 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
+import LanguageConstants from "../languageConstants";
 import "./m-button";
 
 @customElement("test-detail")
@@ -54,22 +55,28 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           value=${this.viewproportion}
         />
       </form>
-      <form id="update-snapshot-form">
-        <button type="button" @click=${this._handleSaveNewSnapshot}>
-          Save new snapshot
-        </button>
-      </form>
     `;
+  }
+
+  renderSaveNewSnapshotForm() {
+    return html` <form id="update-snapshot-form">
+      <button type="button" @click=${this._handleSaveNewSnapshot}>
+        Save new snapshot
+      </button>
+    </form>`;
   }
 
   render() {
     let resultText;
     switch (this.status) {
       case "pass":
-        resultText = "No difference detected";
+        resultText = LanguageConstants.PASS_STATUS_LABEL;
         break;
       case "fail":
-        resultText = "⚠️ Differences detected";
+        resultText = LanguageConstants.FAIL_STATUS_LABEL;
+        break;
+      case "baseline-too-large":
+        resultText = LanguageConstants.BASELINE_TOO_LARGE_STATUS_LABEL;
         break;
       default:
         resultText = "No comparison run";
@@ -83,12 +90,14 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         >Back</m-button
       >
       <h1>${this.name}</h1>
-      <m-button
-        @click=${() => {
-          this._requestTests([this.id]);
-        }}
-        >▶️</m-button
-      >
+      ${this.status === "baseline-too-large"
+        ? ""
+        : html`<m-button
+            @click=${() => {
+              this._requestTests([this.id]);
+            }}
+            >▶️</m-button
+          >`}
       <m-button
         @click=${() => {
           this._requestViewportZoom([this.id]);
@@ -101,9 +110,16 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         }}
         >Go to origin</m-button
       >
-      <h2>${dateLabel}: ${dateValue}</h2>
-      <h2>Result: ${resultText}</h2>
-      ${this.status === "fail" ? this.renderDiffControls() : ""}`;
+      ${this.status === "baseline-too-large"
+        ? ""
+        : html`<h2>${dateLabel}: ${dateValue}</h2>`}
+      <h2>
+        ${this.status === "baseline-too-large" ? "" : "Result:"} ${resultText}
+      </h2>
+      ${this.status === "fail" ? this.renderDiffControls() : ""}
+      ${this.status === "fail" || this.status === "baseline-too-large"
+        ? this.renderSaveNewSnapshotForm()
+        : ""}`;
   }
 
   private _handleDisplayProportionChange(e) {

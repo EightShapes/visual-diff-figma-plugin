@@ -29,12 +29,16 @@ export class Baseline {
     this.frame = figma.getNodeById(baselineFrameId);
   }
 
-  get testWrapper() {
+  get testWrapperNode() {
     return this.frame.parent.parent;
   }
 
+  get testWrapper() {
+    return new TestWrapper(this.testWrapperNode.id);
+  }
+
   get originNode() {
-    const originNodeId = this.testWrapper.getPluginData(
+    const originNodeId = this.testWrapperNode.getPluginData(
       TestWrapper.ORIGIN_NODE_ID_KEY
     );
     return figma.getNodeById(originNodeId);
@@ -44,10 +48,14 @@ export class Baseline {
     const screenshotBytes = await Mendelsohn.convertFrameToImage(
       this.originNode
     );
-    const screenshotImageHash = figma.createImage(screenshotBytes).hash;
-    this.frame.fills = [
-      { type: "IMAGE", imageHash: screenshotImageHash, scaleMode: "FILL" },
-    ];
-    this.frame.resize(this.originNode.width, this.originNode.height);
+    try {
+      const screenshotImageHash = figma.createImage(screenshotBytes).hash;
+      this.frame.fills = [
+        { type: "IMAGE", imageHash: screenshotImageHash, scaleMode: "FILL" },
+      ];
+      this.frame.resize(this.originNode.width, this.originNode.height);
+    } catch (error) {
+      this.testWrapper.showImageTooLargeError("baseline");
+    }
   }
 }

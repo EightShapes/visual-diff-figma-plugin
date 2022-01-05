@@ -49,6 +49,13 @@ export class Mendelsohn {
     year: "numeric",
   };
 
+  static changeUiView(view) {
+    figma.ui.postMessage({
+      type: "change-view",
+      data: view,
+    });
+  }
+
   static get timestamp() {
     const now = new Date();
     return now.toLocaleTimeString(undefined, Mendelsohn.DATE_FORMAT_OPTIONS);
@@ -152,6 +159,7 @@ export class Mendelsohn {
     );
     figma.viewport.scrollAndZoomIntoView(newTestFrames);
     Mendelsohn.postCurrentState();
+    Mendelsohn.changeUiView("test-list");
   }
 
   centerViewportOnNodeIds(nodeIds) {
@@ -197,10 +205,9 @@ export class Mendelsohn {
     await figma.loadFontAsync(Mendelsohn.BOLD_FONT);
     this.showUi();
     Mendelsohn.postCurrentState();
-    figma.ui.postMessage({
-      type: "initialize-view",
-      data: Mendelsohn.pageHasTests,
-    });
+    const initialView = Mendelsohn.pageHasTests ? "test-list" : "create-tests";
+
+    Mendelsohn.changeUiView(initialView);
 
     figma.on("selectionchange", () => {
       this.handleCurrentSelectionChange();
