@@ -1,7 +1,7 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
-import LanguageConstants from "../languageConstants";
+import { LanguageConstants } from "../LanguageConstants";
 import "./m-button";
 
 @customElement("test-detail")

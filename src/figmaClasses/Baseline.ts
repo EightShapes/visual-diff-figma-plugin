@@ -1,5 +1,6 @@
 import { TestWrapper } from "./TestWrapper";
 import { Mendelsohn } from "./Mendelsohn";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 
 export class Baseline {
   static FRAME_NAME_SUFFIX = " Baseline Frame";
@@ -13,6 +14,16 @@ export class Baseline {
 
   static createNewBaselineFrame(originNode) {
     const baselineFrame = this.createNewFrameForNode(originNode);
+
+    if (
+      originNode.height > MendelsohnConstants.MAX_IMAGE_DIMENSION ||
+      originNode.width > MendelsohnConstants.MAX_IMAGE_DIMENSION
+    ) {
+      baselineFrame.resize(
+        MendelsohnConstants.DEFAULT_BASELINE_FRAME_SIZE,
+        MendelsohnConstants.DEFAULT_BASELINE_FRAME_SIZE
+      );
+    }
     baselineFrame.setPluginData(TestWrapper.BASELINE_FRAME_KEY, "true");
     baselineFrame.locked = true;
     baselineFrame.name = `${originNode.name}${Baseline.FRAME_NAME_SUFFIX}`;

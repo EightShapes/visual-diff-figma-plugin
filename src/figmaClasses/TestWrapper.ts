@@ -1,6 +1,6 @@
 import { Mendelsohn } from "./Mendelsohn";
 import { Baseline } from "./Baseline";
-import LanguageConstants from "../languageConstants";
+import { LanguageConstants } from "../LanguageConstants";
 
 export class TestWrapper {
   static TEST_WRAPPER_SUFFIX = " Test";
@@ -30,17 +30,20 @@ export class TestWrapper {
   static async createNewTestMetadata(name) {
     const metadataFrame = figma.createFrame();
     metadataFrame.layoutMode = "VERTICAL";
-    metadataFrame.primaryAxisSizingMode = "AUTO";
+    metadataFrame.layoutAlign = "STRETCH";
+    metadataFrame.primaryAxisSizingMode = "FIXED";
     metadataFrame.counterAxisSizingMode = "AUTO";
     metadataFrame.fills = [];
     metadataFrame.setPluginData(TestWrapper.METADATA_NODE_KEY, "true");
 
     const title = figma.createText();
+    title.layoutAlign = "STRETCH";
     title.fontName = Mendelsohn.BOLD_FONT;
     title.fontSize = TestWrapper.TITLE_FONT_SIZE;
     title.characters = `${TestWrapper.SNAPSHOT_LABEL}`;
 
     const status = figma.createText();
+    status.layoutAlign = "STRETCH";
     status.fontName = Mendelsohn.DEFAULT_FONT;
     status.fontSize = TestWrapper.TITLE_FONT_SIZE;
     status.characters = LanguageConstants.EMPTY_STATUS_LABEL;
@@ -50,6 +53,7 @@ export class TestWrapper {
     metadataFrame.appendChild(status);
 
     const updatedAt = figma.createText();
+    updatedAt.layoutAlign = "STRETCH";
     updatedAt.fontName = Mendelsohn.DEFAULT_FONT;
     updatedAt.fontSize = TestWrapper.TITLE_FONT_SIZE;
     updatedAt.characters = Mendelsohn.timestamp;
@@ -211,10 +215,6 @@ export class TestWrapper {
   }
 
   showImageTooLargeError(snapshotType) {
-    figma.notify(
-      `The ${snapshotType} snapshot is too large to be created. Please make sure the width of the ${snapshotType} is less than 4096px and the height of the ${snapshotType} is less than 4096px.`
-    );
-
     this.updateTestStatus("baseline-too-large");
   }
 
