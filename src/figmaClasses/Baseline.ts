@@ -20,8 +20,8 @@ export class Baseline {
       originNode.width > MendelsohnConstants.MAX_IMAGE_DIMENSION
     ) {
       baselineFrame.resize(
-        MendelsohnConstants.DEFAULT_BASELINE_FRAME_SIZE,
-        MendelsohnConstants.DEFAULT_BASELINE_FRAME_SIZE
+        MendelsohnConstants.DEFAULT_EMPTY_FRAME_SIZE,
+        MendelsohnConstants.DEFAULT_EMPTY_FRAME_SIZE
       );
     }
     baselineFrame.setPluginData(TestWrapper.BASELINE_FRAME_KEY, "true");

@@ -6,6 +6,7 @@ const LanguageConstants = {
   EMPTY_STATUS_LABEL: "No comparison run",
   PASS_STATUS_LABEL: "No difference detected",
   FAIL_STATUS_LABEL: "⚠️ Difference detected",
+  TEST_NOT_RUN_LABEL: "No results, test not yet run.",
 };
 
 export { LanguageConstants };

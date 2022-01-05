@@ -12,6 +12,8 @@ export class TestWrapper {
   static IMAGE_WRAPPER_SUFFIX = " Image Wrapper";
   static TEST_FRAME_KEY = "mendelsohn-test-frame";
   static TEST_FRAME_SUFFIX = " Test Frame";
+  static EMPTY_TEST_IMAGE_PLACEHOLDER_NODE_KEY =
+    "mendelsohn-empty-test-image-placeholder-node";
   static BASELINE_FRAME_KEY = "mendelsohn-baseline-frame";
   static ORIGIN_NODE_ID_KEY = "mendelsohn-origin-node-id";
   static TEST_STATUS_KEY = "test-status";
@@ -242,8 +244,12 @@ export class TestWrapper {
   }
 
   removeTestPlaceholderText() {
-    const placeholderText = this.testFrame.children[0];
-    if (placeholderText !== undefined) {
+    const placeholderText = this.testFrame.findChild(
+      (n) =>
+        n.getPluginData(TestWrapper.EMPTY_TEST_IMAGE_PLACEHOLDER_NODE_KEY) ===
+        "true"
+    );
+    if (placeholderText !== null) {
       placeholderText.remove();
     }
   }
@@ -272,7 +278,7 @@ export class TestWrapper {
     this.setViewProportion(this.viewProportion);
   }
 
-  initializeTestFrame() {
+  initializeTestFrame(message = LanguageConstants.TEST_NOT_RUN_LABEL, size) {
     if (this.testFrame === null) {
       const testFrame = TestWrapper.createNewFrameForNode(this.baselineFrame);
       testFrame.setPluginData(TestWrapper.TEST_FRAME_KEY, "true");
@@ -289,10 +295,27 @@ export class TestWrapper {
       this.imageWrapper.appendChild(testFrame);
     }
 
-    const placeholderText = figma.createText();
+    if (size) {
+      this.testFrame.resize(size, size);
+    }
+
+    let placeholderText = this.testFrame.findChild(
+      (n) =>
+        n.getPluginData(TestWrapper.EMPTY_TEST_IMAGE_PLACEHOLDER_NODE_KEY) ===
+        "true"
+    );
+
+    if (placeholderText === null) {
+      placeholderText = figma.createText();
+      placeholderText.setPluginData(
+        TestWrapper.EMPTY_TEST_IMAGE_PLACEHOLDER_NODE_KEY,
+        "true"
+      );
+    }
+
     placeholderText.fontName = Mendelsohn.DEFAULT_FONT;
     placeholderText.fontSize = 12;
-    placeholderText.characters = "No results, test not yet run.";
+    placeholderText.characters = message;
     placeholderText.textAlignHorizontal = "CENTER";
     placeholderText.layoutAlign = "STRETCH";
     this.testFrame.fills = [
@@ -434,6 +457,13 @@ export class TestWrapper {
           color: Mendelsohn.BLACK_RGB,
         },
       ];
+    }
+
+    if (status === MendelsohnConstants.TEST_TOO_LARGE) {
+      this.initializeTestFrame(
+        LanguageConstants.TEST_TOO_LARGE_STATUS_LABEL,
+        MendelsohnConstants.DEFAULT_EMPTY_FRAME_SIZE
+      );
     }
 
     this.postTestDetailUpdate();
