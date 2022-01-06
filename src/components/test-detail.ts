@@ -35,6 +35,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   @property({ type: Number })
   viewproportion = 0.5;
 
+  @property({ type: Boolean })
+  running = false;
+
   constructor() {
     super();
     this.displayModeSliderDragging = false;
@@ -67,7 +70,14 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     </form>`;
   }
 
-  render() {
+  renderTestRunningMessage() {
+    return html`
+      <h2>${LanguageConstants.TEST_IN_PROGRESS}</h2>
+      Spinner
+    `;
+  }
+
+  renderTestResults() {
     let resultText;
     switch (this.status) {
       case "pass":
@@ -102,14 +112,29 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       this.status === "fail" ||
       this.status === MendelsohnConstants.BASELINE_TOO_LARGE;
 
+    return html`
+      ${showDateStamp ? html`<h2>${dateLabel}: ${dateValue}</h2>` : ""}
+      <h2>${showResultLabel ? "Result:" : ""} ${resultText}</h2>
+      ${this.status === "fail" ? this.renderDiffControls() : ""}
+      ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}
+    `;
+  }
+
+  render() {
     return html`<m-button @click=${this._changeView} data-view="test-list"
         >Back</m-button
       >
       <h1>${this.name}</h1>
-      ${this.status === MendelsohnConstants.BASELINE_TOO_LARGE
+      ${this.status === MendelsohnConstants.BASELINE_TOO_LARGE || this.running
         ? ""
         : html`<m-button
             @click=${() => {
+              const event = new CustomEvent("test-run-requested", {
+                detail: { testId: this.id },
+                bubbles: true,
+                composed: true,
+              });
+              this.dispatchEvent(event); // This event is captures in ui-scripts.js and then a data change is updated to set the test running status to true
               this._requestTests([this.id]);
             }}
             >▶️</m-button
@@ -126,10 +151,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         }}
         >Go to origin</m-button
       >
-      ${showDateStamp ? html`<h2>${dateLabel}: ${dateValue}</h2>` : ""}
-      <h2>${showResultLabel ? "Result:" : ""} ${resultText}</h2>
-      ${this.status === "fail" ? this.renderDiffControls() : ""}
-      ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}`;
+      ${this.running
+        ? this.renderTestRunningMessage()
+        : this.renderTestResults()}`;
   }
 
   private _handleDisplayProportionChange(e) {

@@ -172,6 +172,7 @@ export class Mendelsohn {
   async runTests(testIds) {
     for (const testId of testIds) {
       const test = new TestWrapper(testId);
+
       if (test.frame !== null) {
         await test.runTest();
       } else {

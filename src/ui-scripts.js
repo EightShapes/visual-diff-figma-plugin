@@ -4,6 +4,19 @@ import "./components/viewport-manager";
 const viewportManager = document.querySelector("viewport-manager");
 const imageProcessor = document.querySelector("image-processor");
 
+document.addEventListener("test-run-requested", (e) => {
+  const testId = e.detail.testId;
+  if (viewportManager.activetestwrapper.id === testId) {
+    console.log("IT MATCHES");
+    const testData = JSON.parse(
+      JSON.stringify(viewportManager.activetestwrapper)
+    );
+    testData.running = true;
+    viewportManager.activetestwrapper = testData;
+    viewportManager.requestUpdate();
+  }
+});
+
 // Handle all messages received from the figma file
 onmessage = async (message) => {
   switch (message.data.pluginMessage.type) {

@@ -174,6 +174,7 @@ export class TestWrapper {
       createdAt: this.createdAt,
       lastRunAt: this.lastRunAt,
       viewProportion: this.viewProportion,
+      running: false, // Whenever data is passed from this end, it means the test isn't running
     };
   }
 

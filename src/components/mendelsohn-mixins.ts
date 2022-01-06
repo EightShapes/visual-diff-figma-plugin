@@ -13,7 +13,7 @@ export const MendelsohnMixins = (superClass) =>
       );
     }
 
-    private _requestTests(testIds) {
+    private async _requestTests(testIds) {
       window.parent.postMessage(
         {
           pluginMessage: {
