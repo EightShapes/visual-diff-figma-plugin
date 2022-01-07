@@ -216,6 +216,11 @@ export class Mendelsohn {
 
     figma.on("currentpagechange", () => {
       Mendelsohn.postCurrentState();
+      const initialView = Mendelsohn.pageHasTests
+        ? "test-list"
+        : "create-tests";
+
+      Mendelsohn.changeUiView(initialView);
     });
   }
 }

@@ -12,6 +12,7 @@ class TestList extends MendelsohnMixins(LitElement) {
     * {
       font-family: "Inter", sans-serif;
       font-size: 12px;
+      box-sizing: border-box;
     }
 
     ul {
@@ -71,6 +72,9 @@ class TestList extends MendelsohnMixins(LitElement) {
 
     .status-icon {
       margin-right: 8px;
+      width: 16px;
+      flex-shrink: 0;
+      text-align: center;
     }
 
     .actions {
