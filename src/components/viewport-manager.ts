@@ -1,11 +1,12 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./test-list";
 import "./test-detail";
 import "./create-tests";
 
 @customElement("viewport-manager")
-class ViewportManager extends LitElement {
+class ViewportManager extends MendelsohnMixins(LitElement) {
   @property()
   view: string = "create-tests";
 
@@ -57,7 +58,11 @@ class ViewportManager extends LitElement {
       case "tutorial":
         viewOutput = html` <div>
           <h1>Tutorial</h1>
-          <button @click="${this._changeView}" data-view="test-list">
+          <button
+            @click="${() => {
+              this._changeView("test-list");
+            }}"
+          >
             Show Create Tests
           </button>
         </div>`;
@@ -71,11 +76,6 @@ class ViewportManager extends LitElement {
         ${viewOutput}
       </div>
     `;
-  }
-
-  private _changeView(e: Event) {
-    const newView = e.target.dataset.view;
-    this.view = newView;
   }
 
   private _changeViewListener(e: CustomEvent) {

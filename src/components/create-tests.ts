@@ -2,6 +2,8 @@ import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./m-button";
+import { MendelsohnIcons } from "../MendelsohnIcons";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
 @customElement("create-tests")
 class CreateTests extends MendelsohnMixins(LitElement) {
@@ -27,6 +29,21 @@ class CreateTests extends MendelsohnMixins(LitElement) {
       display: flex;
       justify-content: space-between;
     }
+
+    .create-tests-header {
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      border-bottom: solid 1px #e6e6e6;
+    }
+
+    .back-button {
+      margin-right: 4px;
+    }
+
+    .create-tests-body {
+      padding: 12px;
+    }
   `;
 
   @property({ type: Array })
@@ -41,37 +58,47 @@ class CreateTests extends MendelsohnMixins(LitElement) {
       this.pagehastests === true
         ? "Add to snapshots on this page"
         : "Create new snapshots";
-    return html` ${this.pagehastests === true
-        ? html`<m-button @click=${this._changeView} data-view="test-list"
-            >Back</m-button
-          >`
-        : ""}
-      <h1>Create snapshots</h1>
-      ${this.currentselection.length === 0
-        ? html`<p>Select one or more objects to create a snapshot test.</p>`
-        : ""}
-      <!-- something selected state-->
-      <div>
-        <!-- List of selected objects, scrollable?, hiding for now, jsut showing count -->
-        <!-- <ul>
-          ${this.currentselection.map(
-          (fNode) => html`<li>${fNode.name} -${fNode.id}</li>`
-        )}
-        </ul> -->
-        <!-- List of actions to take -->
-        ${this.currentselection.length > 0
-          ? html` <p>${this.currentselection.length} selected ${itemPlural}</p>
-              <ul>
-                <li>
-                  <m-button
-                    @click=${this._createTestsFromSelection}
-                    variant="link"
-                  >
-                    ${actionText}
-                  </m-button>
-                </li>
-              </ul>`
+    return html` <div class="create-tests-header">
+        ${this.pagehastests === true
+          ? html`<m-button
+              class="back-button"
+              @click=${() => {
+                this._changeView("test-list");
+              }}
+              >${unsafeSVG(MendelsohnIcons.back)}</m-button
+            >`
           : ""}
+        <h1>Create snapshots</h1>
+      </div>
+      <div class="create-tests-body">
+        ${this.currentselection.length === 0
+          ? html`<p>Select one or more objects to create a snapshot test.</p>`
+          : ""}
+        <!-- something selected state-->
+        <div>
+          <!-- List of selected objects, scrollable?, hiding for now, jsut showing count -->
+          <!-- <ul>
+          ${this.currentselection.map(
+            (fNode) => html`<li>${fNode.name} -${fNode.id}</li>`
+          )}
+          </ul> -->
+          <!-- List of actions to take -->
+          ${this.currentselection.length > 0
+            ? html` <p>
+                  ${this.currentselection.length} selected ${itemPlural}
+                </p>
+                <ul>
+                  <li>
+                    <m-button
+                      @click=${this._createTestsFromSelection}
+                      variant="link"
+                    >
+                      ${actionText}
+                    </m-button>
+                  </li>
+                </ul>`
+            : ""}
+        </div>
       </div>`;
   }
 

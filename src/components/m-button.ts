@@ -13,12 +13,15 @@ class MButton extends LitElement {
       cursor: pointer;
       padding: 0;
       margin: 0;
+      text-align: left;
+      cursor: pointer;
     }
 
-    .link {
+    button.link {
       background: none;
-      color: blue;
+      color: #18a0fb;
       padding: 0;
+      cursor: pointer;
     }
   `;
 

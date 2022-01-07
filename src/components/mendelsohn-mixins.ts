@@ -1,9 +1,7 @@
 export const MendelsohnMixins = (superClass) =>
   class extends superClass {
     /* class fields & methods to extend superClass with */
-    private _changeView(e: Event) {
-      const target = e.target;
-      const newView = target.dataset.view;
+    private _changeView(newView) {
       this.dispatchEvent(
         new CustomEvent("changeview", {
           detail: { newView },

@@ -10,7 +10,7 @@
     "build-ui-html": "node build-scripts/build-ui-html.js",
     "build-ui-js": "npx esbuild src/ui-scripts.js --bundle --outfile=dist/ui.js",
     "build-ui": "npm-run-all build-ui-js build-ui-html",
-    "watch-ui": "chokidar \"src/ui.html\" \"src/ui-scripts.js\" \"src/components/*.ts\" -c \"npm run build-ui\"",
+    "watch-ui": "chokidar \"src/ui.html\" \"src/ui-scripts.js\" \"src/components/*.ts\" \"src/*.ts\" -c \"npm run build-ui\"",
     "watch-all": "npm-run-all --parallel watch-ui watch-plugin-js"
   },
   "author": "",
