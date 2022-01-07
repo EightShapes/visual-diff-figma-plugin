@@ -1,7 +1,7 @@
 {
   "name": "mendelsohn",
-  "version": "1.0.0",
-  "description": "Visual Regression Testing Plugin",
+  "version": "1.0.0-alpha.0",
+  "description": "Visual Diffing Plugin",
   "main": "code.js",
   "scripts": {
     "start": "npm-run-all build-ui build-plugin-js watch-all",

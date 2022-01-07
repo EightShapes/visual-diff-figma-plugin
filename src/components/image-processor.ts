@@ -33,6 +33,7 @@ class ImageProcessor extends LitElement {
       img.onerror = () => reject();
       img.src = url;
     });
+    console.log(image);
     canvas.width = width;
     canvas.height = height;
     ctx.drawImage(image, 0, 0);
@@ -41,6 +42,7 @@ class ImageProcessor extends LitElement {
   };
 
   getImageDiff = async (imageData) => {
+    console.log("GID", this);
     const canvas = this.shadowRoot.querySelector("canvas");
     const ctx = canvas.getContext("2d");
     const { baseline, test } = imageData;
@@ -70,6 +72,8 @@ class ImageProcessor extends LitElement {
 
     const diff = ctx.createImageData(largestWidth, largestHeight);
 
+    console.log(`DIFF DIMENSIONS: ${largestWidth} x ${largestHeight}`);
+
     const pixelDiffCount = pixelmatch(
       img1.data,
       img2.data,
@@ -81,12 +85,15 @@ class ImageProcessor extends LitElement {
         diffColor: [255, 66, 179],
         aaColor: [255, 66, 179],
         alpha: 0.3,
+        diffMask: true,
       }
     );
 
     ctx.putImageData(diff, 0, 0);
 
     const encodedImageDiff = await this._encode(canvas, ctx, diff);
+
+    console.log("diff", diff);
 
     return {
       pixelDiffCount,
