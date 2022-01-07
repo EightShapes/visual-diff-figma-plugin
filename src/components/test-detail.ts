@@ -13,6 +13,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     * {
       font-family: "Inter", sans-serif;
       font-size: 12px;
+      box-sizing: border-box;
     }
 
     .test-detail {
