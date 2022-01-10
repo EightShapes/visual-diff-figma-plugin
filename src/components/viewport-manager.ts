@@ -1,4 +1,4 @@
-import { LitElement, html } from "lit";
+import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./test-list";
@@ -7,6 +7,18 @@ import "./create-tests";
 
 @customElement("viewport-manager")
 class ViewportManager extends MendelsohnMixins(LitElement) {
+  static styles = css`
+    :host {
+      height: 100%;
+    }
+
+    .viewport-manager {
+      height: 100%;
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+    }
+  `;
   @property()
   view: string = "create-tests";
 
@@ -70,6 +82,7 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
     }
     return html`
       <div
+        class="viewport-manager"
         @changeview=${this._changeViewListener}
         @postmessage=${this._handlePostMessage}
       >

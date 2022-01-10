@@ -15,11 +15,24 @@ class TestList extends MendelsohnMixins(LitElement) {
       box-sizing: border-box;
     }
 
+    :host {
+      flex: 0 1 100%;
+    }
+
+    .test-list {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
     ul {
       list-style: none;
       margin: 0;
       padding: 12px 0;
       text-align: left;
+      overflow-y: scroll;
+      flex: 1 1 100%;
     }
 
     li {
@@ -32,24 +45,24 @@ class TestList extends MendelsohnMixins(LitElement) {
       background: #daebf7;
     }
 
-    .snapshot-list-header {
+    .snapshot-list-footer {
       display: flex;
       justify-content: space-between;
-      border-bottom: solid 1px #e6e6e6;
+      border-top: solid 1px #e6e6e6;
       padding: 8px 12px;
       align-items: center;
+      margin-top: auto;
+      flex: 0 0 auto;
     }
 
-    .snapshot-list-header h1 {
-      margin: 0;
-    }
-
-    .header-actions {
+    .footer-actions {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      width: 100%;
     }
 
-    .header-actions button {
+    .footer-actions button {
       background: none;
       padding: 7px 12px;
       border: solid 1px #000000;
@@ -58,9 +71,21 @@ class TestList extends MendelsohnMixins(LitElement) {
       align-items: center;
       margin-right: 4px;
       cursor: pointer;
+      min-height: 30px;
     }
 
-    .header-actions button:last-child {
+    .footer-actions button svg {
+      fill: currentColor;
+      margin-right: 4px;
+    }
+
+    .footer-actions button.primary {
+      background: #18a0fb;
+      border: 0;
+      color: white;
+    }
+
+    .footer-actions button:last-child {
       margin-right: 0;
     }
 
@@ -106,25 +131,6 @@ class TestList extends MendelsohnMixins(LitElement) {
 
     return html`
       <div class="test-list">
-        <div class="snapshot-list-header">
-          <h1>Snapshots</h1>
-          <div class="header-actions">
-            <button
-              @click=${() => {
-                this._changeView("create-tests");
-              }}
-            >
-              New
-            </button>
-            <button
-              @click=${() => {
-                this._requestTests(allTestIds);
-              }}
-            >
-              ${unsafeSVG(MendelsohnIcons.play)}&nbsp;Run All
-            </button>
-          </div>
-        </div>
         <ul>
           ${currentPage.tests.map((test) => {
             let statusIcon;
@@ -170,6 +176,25 @@ class TestList extends MendelsohnMixins(LitElement) {
             </li>`;
           })}
         </ul>
+        <div class="snapshot-list-footer">
+          <div class="footer-actions">
+            <button
+              @click=${() => {
+                this._changeView("create-tests");
+              }}
+            >
+              New
+            </button>
+            <button
+              class="primary"
+              @click=${() => {
+                this._requestTests(allTestIds);
+              }}
+            >
+              ${unsafeSVG(MendelsohnIcons.play)}&nbsp;Compare All
+            </button>
+          </div>
+        </div>
       </div>
     `;
   }
