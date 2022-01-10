@@ -8,6 +8,8 @@ const LanguageConstants = {
   FAIL_STATUS_LABEL: `Difference detected`,
   TEST_NOT_RUN_LABEL: "No results, test not yet run.",
   TEST_IN_PROGRESS: "Please wait while the test suite runs.",
+  BASELINE_LABEL: "Baseline",
+  LATEST_TEST_IMAGE_LABEL: "Latest",
 };
 
 export { LanguageConstants };

@@ -15,15 +15,19 @@ export class TestWrapper {
   static EMPTY_TEST_IMAGE_PLACEHOLDER_NODE_KEY =
     "mendelsohn-empty-test-image-placeholder-node";
   static BASELINE_FRAME_KEY = "mendelsohn-baseline-frame";
+  static BASELINE_FRAME_WRAPPER_KEY = "mendelsohn-baseline-frame-wrapper";
+  static TEST_FRAME_WRAPPER_KEY = "mendelsohn-test-frame-wrapper";
   static ORIGIN_NODE_ID_KEY = "mendelsohn-origin-node-id";
   static TEST_STATUS_KEY = "test-status";
   static TEST_STATUS_METADATA_KEY = "test-status-metadata";
   static UPDATED_AT_METADATA_KEY = "updated-at-metadata";
   static METADATA_NODE_KEY = "mendelsohn-metadata-node";
   static TITLE_FONT_SIZE = 12;
+  static LABEL_FONT_SIZE = 10;
   static SNAPSHOT_LABEL = "Mendelsohn snapshot";
   static SPACING = 16;
   static STACK_SPACING = 10;
+  static LABEL_SPACING = 8;
   static CORNER_RADIUS = 8;
   static DASH_PATTERN = [4, 4];
   static ERROR_BACKGROUND_OPACITY = 0.07;
@@ -154,13 +158,27 @@ export class TestWrapper {
   }
 
   get baselineFrame() {
-    return this.imageWrapper.findChild(
+    const baselineFrameWrapper = this.imageWrapper.findChild(
+      (node) =>
+        node.getPluginData(TestWrapper.BASELINE_FRAME_WRAPPER_KEY) === "true"
+    );
+    if (baselineFrameWrapper === null) {
+      return null;
+    }
+    return baselineFrameWrapper.findChild(
       (node) => node.getPluginData(TestWrapper.BASELINE_FRAME_KEY) === "true"
     );
   }
 
   get testFrame() {
-    return this.imageWrapper.findChild(
+    const imageFrameWrapper = this.imageWrapper.findChild(
+      (node) =>
+        node.getPluginData(TestWrapper.TEST_FRAME_WRAPPER_KEY) === "true"
+    );
+    if (imageFrameWrapper === null) {
+      return null;
+    }
+    return imageFrameWrapper.findChild(
       (node) => node.getPluginData(TestWrapper.TEST_FRAME_KEY) === "true"
     );
   }
@@ -246,9 +264,13 @@ export class TestWrapper {
 
   updateBaseline() {
     if (this.baselineFrame === null) {
-      const baselineFrame = Baseline.createNewBaselineFrame(this.originNode);
-      this.imageWrapper.appendChild(baselineFrame);
+      const baselineFrameWrapper = Baseline.createNewBaselineFrame(
+        this.originNode
+      );
+      console.log(baselineFrameWrapper);
+      this.imageWrapper.appendChild(baselineFrameWrapper);
     }
+    console.log(this.baselineFrame.id);
     const baseline = new Baseline(this.baselineFrame.id);
     baseline.update();
   }
@@ -297,6 +319,23 @@ export class TestWrapper {
 
   initializeTestFrame(message = LanguageConstants.TEST_NOT_RUN_LABEL, size) {
     if (this.testFrame === null) {
+      const testFrameWrapper = figma.createFrame();
+      testFrameWrapper.layoutMode = "VERTICAL";
+      testFrameWrapper.itemSpacing = TestWrapper.LABEL_SPACING;
+      testFrameWrapper.counterAxisSizingMode = "AUTO";
+      testFrameWrapper.fills = [];
+      testFrameWrapper.setPluginData(
+        TestWrapper.TEST_FRAME_WRAPPER_KEY,
+        "true"
+      );
+
+      const label = figma.createText();
+      label.layoutAlign = "STRETCH";
+      label.fontName = Mendelsohn.DEFAULT_FONT;
+      label.fontSize = TestWrapper.LABEL_FONT_SIZE;
+      label.characters = `${LanguageConstants.LATEST_TEST_IMAGE_LABEL}`;
+      testFrameWrapper.appendChild(label);
+
       const testFrame = TestWrapper.createNewFrameForNode(this.baselineFrame);
       testFrame.setPluginData(TestWrapper.TEST_FRAME_KEY, "true");
       testFrame.name = `${this.originNode.name}${TestWrapper.TEST_FRAME_SUFFIX}`;
@@ -310,7 +349,9 @@ export class TestWrapper {
         },
       ];
       testFrame.strokeWeight = 1;
-      this.imageWrapper.appendChild(testFrame);
+
+      testFrameWrapper.appendChild(testFrame);
+      this.imageWrapper.appendChild(testFrameWrapper);
     }
 
     if (size) {

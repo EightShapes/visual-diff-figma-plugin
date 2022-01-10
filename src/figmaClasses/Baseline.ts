@@ -1,6 +1,7 @@
 import { TestWrapper } from "./TestWrapper";
 import { Mendelsohn } from "./Mendelsohn";
 import { MendelsohnConstants } from "../MendelsohnConstants";
+import { LanguageConstants } from "../LanguageConstants";
 
 export class Baseline {
   static FRAME_NAME_SUFFIX = " Baseline Frame";
@@ -13,6 +14,23 @@ export class Baseline {
   };
 
   static createNewBaselineFrame(originNode) {
+    const baselineFrameWrapper = figma.createFrame();
+    baselineFrameWrapper.layoutMode = "VERTICAL";
+    baselineFrameWrapper.itemSpacing = TestWrapper.LABEL_SPACING;
+    baselineFrameWrapper.counterAxisSizingMode = "AUTO";
+    baselineFrameWrapper.fills = [];
+    baselineFrameWrapper.setPluginData(
+      TestWrapper.BASELINE_FRAME_WRAPPER_KEY,
+      "true"
+    );
+
+    const label = figma.createText();
+    label.layoutAlign = "STRETCH";
+    label.fontName = Mendelsohn.DEFAULT_FONT;
+    label.fontSize = TestWrapper.LABEL_FONT_SIZE;
+    label.characters = `${LanguageConstants.BASELINE_LABEL}`;
+    baselineFrameWrapper.appendChild(label);
+
     const baselineFrame = this.createNewFrameForNode(originNode);
 
     if (
@@ -33,7 +51,9 @@ export class Baseline {
         color: Mendelsohn.GRAY_RGB,
       },
     ];
-    return baselineFrame;
+
+    baselineFrameWrapper.appendChild(baselineFrame);
+    return baselineFrameWrapper;
   }
 
   constructor(baselineFrameId) {
@@ -41,7 +61,7 @@ export class Baseline {
   }
 
   get testWrapperNode() {
-    return this.frame.parent.parent;
+    return this.frame.parent.parent.parent;
   }
 
   get testWrapper() {
