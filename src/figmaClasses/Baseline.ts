@@ -30,7 +30,7 @@ export class Baseline {
     baselineFrame.strokes = [
       {
         type: "SOLID",
-        color: Mendelsohn.LIGHT_GRAY_RGB,
+        color: Mendelsohn.GRAY_RGB,
       },
     ];
     return baselineFrame;

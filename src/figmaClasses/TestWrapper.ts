@@ -29,6 +29,26 @@ export class TestWrapper {
   static ERROR_BACKGROUND_OPACITY = 0.07;
   static VIEW_PROPORTION_KEY = "mendelsohn-view-proportion";
   static DEFAULT_VIEW_PROPORTION = "0";
+  static WRAPPER_STROKE_DEFAULT = {
+    // TODO: Reference constant
+    type: "SOLID",
+    color: {
+      r: 0.631372549019608,
+      g: 0.631372549019608,
+      b: 0.631372549019608,
+    },
+  };
+  static WRAPPER_STROKE_ERROR = {
+    // TODO: Reference constant
+    type: "SOLID",
+    color: {
+      r: 0.949019607843137,
+      g: 0.282352941176471,
+      b: 0.133333333333333,
+    },
+  };
+  static STROKE_WEIGHT_DEFAULT = 1;
+  static STROKE_WEIGHT_ERROR = 2;
 
   static async createNewTestMetadata(name) {
     const metadataFrame = figma.createFrame();
@@ -101,12 +121,8 @@ export class TestWrapper {
     testWrapper.paddingTop = TestWrapper.SPACING;
     testWrapper.paddingBottom = TestWrapper.SPACING;
     testWrapper.fills = [];
-    testWrapper.strokes = [
-      {
-        type: "SOLID",
-        color: Mendelsohn.BLACK_RGB,
-      },
-    ];
+    testWrapper.strokes = [TestWrapper.WRAPPER_STROKE_DEFAULT];
+    testWrapper.strokeWeight = 1;
     testWrapper.dashPattern = TestWrapper.DASH_PATTERN;
     testWrapper.cornerRadius = TestWrapper.CORNER_RADIUS;
 
@@ -290,9 +306,10 @@ export class TestWrapper {
       testFrame.strokes = [
         {
           type: "SOLID",
-          color: Mendelsohn.LIGHT_GRAY_RGB,
+          color: Mendelsohn.GRAY_RGB,
         },
       ];
+      testFrame.strokeWeight = 1;
       this.imageWrapper.appendChild(testFrame);
     }
 
@@ -449,8 +466,12 @@ export class TestWrapper {
           opacity: TestWrapper.ERROR_BACKGROUND_OPACITY,
         },
       ];
+      this.frame.strokes = [TestWrapper.WRAPPER_STROKE_ERROR];
+      this.frame.strokeWeight = TestWrapper.STROKE_WEIGHT_ERROR;
     } else {
       this.frame.fills = [];
+      this.frame.strokes = [TestWrapper.WRAPPER_STROKE_DEFAULT];
+      this.frame.strokeWeight = TestWrapper.STROKE_WEIGHT_DEFAULT;
       this.statusMetadataNode.fontName = Mendelsohn.DEFAULT_FONT;
       this.statusMetadataNode.fills = [
         {
