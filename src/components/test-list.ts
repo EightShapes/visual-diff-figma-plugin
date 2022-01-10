@@ -29,7 +29,7 @@ class TestList extends MendelsohnMixins(LitElement) {
     ul {
       list-style: none;
       margin: 0;
-      padding: 12px 0;
+      padding: 0;
       text-align: left;
       overflow-y: scroll;
       flex: 1 1 100%;
@@ -38,7 +38,7 @@ class TestList extends MendelsohnMixins(LitElement) {
     li {
       display: flex;
       justify-content: space-between;
-      padding: 8px;
+      padding: 12px;
     }
 
     li:hover {

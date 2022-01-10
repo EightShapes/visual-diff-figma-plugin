@@ -15,6 +15,7 @@ class MButton extends LitElement {
       margin: 0;
       text-align: left;
       cursor: pointer;
+      color: black;
     }
 
     button.link {
@@ -22,6 +23,10 @@ class MButton extends LitElement {
       color: #18a0fb;
       padding: 0;
       cursor: pointer;
+    }
+
+    ::slotted(svg) {
+      fill: currentColor;
     }
   `;
 

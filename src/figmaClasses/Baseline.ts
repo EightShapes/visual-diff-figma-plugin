@@ -4,7 +4,7 @@ import { MendelsohnConstants } from "../MendelsohnConstants";
 import { LanguageConstants } from "../LanguageConstants";
 
 export class Baseline {
-  static FRAME_NAME_SUFFIX = " Baseline Frame";
+  static FRAME_NAME_SUFFIX = "";
 
   static createNewFrameForNode = (fNode) => {
     const newFrame = figma.createFrame();

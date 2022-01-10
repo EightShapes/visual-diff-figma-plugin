@@ -4,14 +4,14 @@ import { LanguageConstants } from "../LanguageConstants";
 import { MendelsohnConstants } from "../MendelsohnConstants";
 
 export class TestWrapper {
-  static TEST_WRAPPER_SUFFIX = " Test";
+  static TEST_WRAPPER_SUFFIX = "";
   static TEST_WRAPPER_KEY = "mendelsohn-test-wrapper";
   static TEST_WRAPPER_CREATED_AT_KEY = "mendelsohn-test-wrapper-created-at";
   static TEST_WRAPPER_LAST_RUN_AT_KEY = "mendelsohn-test-wrapper-last-run-at";
   static IMAGE_WRAPPER_KEY = "mendelsohn-image-wrapper";
-  static IMAGE_WRAPPER_SUFFIX = " Image Wrapper";
+  static IMAGE_WRAPPER_SUFFIX = "";
   static TEST_FRAME_KEY = "mendelsohn-test-frame";
-  static TEST_FRAME_SUFFIX = " Test Frame";
+  static TEST_FRAME_SUFFIX = "";
   static EMPTY_TEST_IMAGE_PLACEHOLDER_NODE_KEY =
     "mendelsohn-empty-test-image-placeholder-node";
   static BASELINE_FRAME_KEY = "mendelsohn-baseline-frame";

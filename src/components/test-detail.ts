@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import { LanguageConstants } from "../LanguageConstants";
@@ -19,6 +19,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     .test-detail {
       display: flex;
       flex-direction: column;
+      height: 100vh;
     }
 
     .spinner {
@@ -59,14 +60,16 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     }
 
     .origin-name {
-      font-weight: normal;
+      font-weight: bold;
       flex-grow: 1;
+      padding: 12px 12px 12px 0;
+      margin: 0;
     }
 
     .test-detail-header {
       align-items: center;
       display: flex;
-      padding: 12px;
+      padding: 0 12px;
       border-bottom: solid 1px #e6e6e6;
     }
 
@@ -79,7 +82,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     }
 
     .test-results {
-      padding: 12px;
+      padding: 0 12px;
     }
 
     h2 {
@@ -88,9 +91,28 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       display: flex;
     }
 
+    .test-results h2 {
+      margin: 0;
+      padding: 12px 0;
+    }
+
     .result-label {
       font-weight: bold;
       width: 80px;
+    }
+
+    .status-text {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .status-text svg {
+      margin-right: 8px;
+      fill: currentColor;
+    }
+
+    .fail.status-text {
+      color: ${unsafeCSS(MendelsohnConstants.DIFF_COLOR_HEX)};
     }
 
     .test-detail-actions {
@@ -110,13 +132,12 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     .display-mode-form {
       display: flex;
       align-items: flex-start;
-      border-top: solid 1px #e6e6e6;
       padding: 12px;
     }
 
     .update-snapshot-form {
       display: block;
-      padding: 12px;
+      padding: 0;
       margin: 0;
     }
 
@@ -132,8 +153,152 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       padding: 12px;
     }
 
+    .body {
+      flex: 1 1 auto;
+      height: 100%;
+    }
+
     p {
       margin: 0 0 12px;
+    }
+
+    .footer {
+      margin-top: auto;
+    }
+
+    .footer-bottom {
+      border-top: solid 1px #e6e6e6;
+      padding: 12px;
+    }
+
+    .footer-top {
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer button {
+      background: none;
+      padding: 7px 12px;
+      border: solid 1px #000000;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      margin-right: 4px;
+      cursor: pointer;
+      min-height: 30px;
+      color: black;
+    }
+
+    .footer button svg {
+      fill: currentColor;
+      margin-right: 4px;
+    }
+
+    .footer button.primary {
+      background: #18a0fb;
+      border: 0;
+      color: white;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+      width: 100%; /* Specific width is required for Firefox. */
+      background: transparent; /* Otherwise white in Chrome */
+      margin: 0;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]:focus {
+      outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+    }
+
+    input[type="range"]::-ms-track {
+      width: 100%;
+      cursor: pointer;
+
+      /* Hides the slider so custom styles can be added */
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+
+    /* Special styling for WebKit/Blink */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 10px;
+      width: 10px;
+      border-radius: 20px;
+      background: black;
+      cursor: pointer;
+    }
+
+    /* All the same stuff for Firefox */
+    input[type="range"]::-moz-range-thumb {
+      height: 10px;
+      width: 10px;
+      border-radius: 20px;
+      background: black;
+      cursor: pointer;
+    }
+
+    /* All the same stuff for IE */
+    input[type="range"]::-ms-thumb {
+      height: 10px;
+      width: 10px;
+      border-radius: 20px;
+      background: black;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 10px;
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+    }
+
+    input[type="range"]::-moz-range-track {
+      width: 100%;
+      height: 10px;
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+    }
+
+    input[type="range"]::-ms-track {
+      width: 100%;
+      height: 10px;
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+    }
+
+    .range-slider-wrap {
+      position: relative;
+      overflow: visible;
+    }
+
+    .range-slider-wrap::after {
+      content: "";
+      position: absolute;
+      top: 5px;
+      height: 1px;
+      background: black;
+      width: 100%;
+      left: 0;
+    }
+
+    .range-slider-wrap-labels {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 4px;
     }
   `;
 
@@ -166,29 +331,78 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     this.displayModeSliderDragging = false;
   }
 
+  renderFooter() {
+    const showSaveSnapshotForm =
+      this.status === "fail" ||
+      this.status === MendelsohnConstants.BASELINE_TOO_LARGE;
+
+    return html` <div class="footer">
+      <div class="footer-top">
+        ${this.status === MendelsohnConstants.BASELINE_TOO_LARGE || this.running
+          ? ""
+          : html`<button
+              @click=${() => {
+                const event = new CustomEvent("test-run-requested", {
+                  detail: { testId: this.id },
+                  bubbles: true,
+                  composed: true,
+                });
+                this.dispatchEvent(event); // This event is captures in ui-scripts.js and then a data change is updated to set the test running status to true
+                this._requestTests([this.id]);
+              }}
+              title="Compare"
+            >
+              ${unsafeSVG(MendelsohnIcons.play)}
+              ${this.status !== undefined ? "Compare again" : "Compare"}
+            </button>`}
+        ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}
+      </div>
+      <div class="footer-bottom">
+        <m-button
+          @click=${() => {
+            this._requestViewportZoom([this.originnodeid]);
+          }}
+          title="Go to original artwork"
+          variant="link"
+          >Go to original artwork</m-button
+        >
+      </div>
+    </div>`;
+  }
+
   renderDiffControls() {
     return html`
       <form class="display-mode-form" id="display-mode-form">
-        <label class="result-label" for="proportion-slider">Difference</label>
-        <input
-          type="range"
-          id="proportion-slider"
-          @mousedown=${this._initiateDisplayProportionChange}
-          @mouseup=${this._terminateDisplayProportionChange}
-          @mousemove=${this._handleDisplayProportionChange}
-          min="0"
-          max="1"
-          step="0.05"
-          value=${this.viewproportion}
-        />
+        <label class="result-label" for="proportion-slider">Highlight</label>
+        <div class="range-slider-wrap">
+          <input
+            type="range"
+            id="proportion-slider"
+            @mousedown=${this._initiateDisplayProportionChange}
+            @mouseup=${this._terminateDisplayProportionChange}
+            @mousemove=${this._handleDisplayProportionChange}
+            min="0"
+            max="1"
+            step="0.05"
+            value=${this.viewproportion}
+          />
+          <div class="range-slider-wrap-labels">
+            <span class="range-slider-wrap-min">0%</span>
+            <span class="range-slider-wrap-max">100%</span>
+          </div>
+        </div>
       </form>
     `;
   }
 
   renderSaveNewSnapshotForm() {
     return html` <form class="update-snapshot-form" id="update-snapshot-form">
-      <button type="button" @click=${this._handleSaveNewSnapshot}>
-        Save new snapshot
+      <button
+        class="primary"
+        type="button"
+        @click=${this._handleSaveNewSnapshot}
+      >
+        ${unsafeSVG(MendelsohnIcons.check)} Approve
       </button>
     </form>`;
   }
@@ -211,7 +425,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         resultText = LanguageConstants.PASS_STATUS_LABEL;
         break;
       case "fail":
-        resultText = html`${unsafeSVG(MendelsohnIcons.warning)}
+        resultText = html`${unsafeSVG(MendelsohnIcons.diff)}
         ${LanguageConstants.FAIL_STATUS_LABEL}`;
         break;
       case MendelsohnConstants.BASELINE_TOO_LARGE:
@@ -236,10 +450,6 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       this.status !== MendelsohnConstants.BASELINE_TOO_LARGE &&
       this.status !== MendelsohnConstants.TEST_TOO_LARGE;
 
-    const showSaveSnapshotForm =
-      this.status === "fail" ||
-      this.status === MendelsohnConstants.BASELINE_TOO_LARGE;
-
     return html`
       <div class="test-results">
         ${showDateStamp
@@ -248,12 +458,13 @@ class TestDetail extends MendelsohnMixins(LitElement) {
             </h2>`
           : ""}
         <h2>
-          <span class="result-label">${showResultLabel ? "Result" : ""}</span>
-          ${resultText}
+          <span class="result-label status-label"
+            >${showResultLabel ? "Status" : ""}</span
+          >
+          <span class="status-text ${this.status}"> ${resultText} </span>
         </h2>
       </div>
       ${this.status === "fail" ? this.renderDiffControls() : ""}
-      ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}
     `;
   }
 
@@ -270,41 +481,21 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         >
         <h1 class="origin-name">${this.name}</h1>
         <div class="test-detail-actions">
-          ${this.status === MendelsohnConstants.BASELINE_TOO_LARGE ||
-          this.running
-            ? ""
-            : html`<m-button
-                @click=${() => {
-                  const event = new CustomEvent("test-run-requested", {
-                    detail: { testId: this.id },
-                    bubbles: true,
-                    composed: true,
-                  });
-                  this.dispatchEvent(event); // This event is captures in ui-scripts.js and then a data change is updated to set the test running status to true
-                  this._requestTests([this.id]);
-                }}
-                title="Run Test"
-                >${unsafeSVG(MendelsohnIcons.play)}</m-button
-              >`}
           <m-button
             @click=${() => {
               this._requestViewportZoom([this.id]);
             }}
-            title="Show Test"
+            title="Go To Snapshot"
             >${unsafeSVG(MendelsohnIcons.locate)}</m-button
-          >
-          <m-button
-            @click=${() => {
-              this._requestViewportZoom([this.originnodeid]);
-            }}
-            title="Go to origin"
-            >${unsafeSVG(MendelsohnIcons.origin)}</m-button
           >
         </div>
       </div>
-      ${this.running
-        ? this.renderTestRunningMessage()
-        : this.renderTestResults()}
+      <div class="body">
+        ${this.running
+          ? this.renderTestRunningMessage()
+          : this.renderTestResults()}
+      </div>
+      ${this.renderFooter()}
     </div>`;
   }
 

@@ -32,18 +32,27 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     }
 
     .create-tests-header {
-      padding: 12px;
+      padding: 0 12px;
       display: flex;
       align-items: center;
       border-bottom: solid 1px #e6e6e6;
     }
 
+    .create-tests-header h1 {
+      margin: 0;
+      padding: 12px 0;
+    }
+
     .back-button {
-      margin-right: 4px;
+      margin-right: 12px;
     }
 
     .create-tests-body {
       padding: 12px;
+    }
+
+    .create-tests-body p {
+      margin: 0;
     }
   `;
 
