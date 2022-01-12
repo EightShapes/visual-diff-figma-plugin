@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./m-button";
@@ -11,7 +11,7 @@ class TestList extends MendelsohnMixins(LitElement) {
   static styles = css`
     * {
       font-family: "Inter", sans-serif;
-      font-size: 12px;
+      font-size: ${unsafeCSS(MendelsohnConstants.DEFAULT_FONT_SIZE)};
       box-sizing: border-box;
     }
 
@@ -35,13 +35,15 @@ class TestList extends MendelsohnMixins(LitElement) {
       flex: 1 1 100%;
     }
 
-    li {
+    .test-list-item {
+      align-items: center;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       padding: 12px;
+      position: relative;
     }
 
-    li:hover {
+    .test-list-item:hover {
       background: #daebf7;
     }
 
@@ -91,7 +93,7 @@ class TestList extends MendelsohnMixins(LitElement) {
 
     .status-and-name {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       padding-right: 4px;
     }
 
@@ -103,17 +105,45 @@ class TestList extends MendelsohnMixins(LitElement) {
     }
 
     .actions {
-      display: flex;
+      display: none;
       align-items: center;
       flex-shrink: 0;
+      margin-left: auto;
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      bottom: 0;
+      width: auto;
+      right: 0;
+      background: #daebf7;
+      padding: 0;
+    }
+
+    .test-list-item:hover .actions {
+      display: flex;
     }
 
     .actions > * {
-      margin-right: 12px;
+      display: flex;
+      height: 32px;
+      width: 32px;
     }
 
-    .actions > *:last-child {
-      margin-right: 0;
+    .actions > *:hover {
+      background: red;
+    }
+
+    .pass .status-icon {
+      fill: ${unsafeCSS(MendelsohnConstants.NODIFF_COLOR_HEX)};
+    }
+
+    .fail .status-icon {
+      fill: ${unsafeCSS(MendelsohnConstants.DIFF_COLOR_HEX)};
+    }
+
+    .${unsafeCSS(MendelsohnConstants.STATUS_BASELINE_TOO_LARGE)} .status-icon,
+    .${unsafeCSS(MendelsohnConstants.STATUS_TEST_TOO_LARGE)} .status-icon {
+      fill: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
     }
   `;
 
@@ -136,18 +166,20 @@ class TestList extends MendelsohnMixins(LitElement) {
             let statusIcon;
             switch (test.status) {
               case "pass":
-                statusIcon = html`${unsafeSVG(MendelsohnIcons.check)}`;
+                statusIcon = html`${unsafeSVG(MendelsohnIcons.nodiff)}`;
                 break;
               case MendelsohnConstants.STATUS_TEST_TOO_LARGE:
               case MendelsohnConstants.STATUS_BASELINE_TOO_LARGE:
-              case "fail":
                 statusIcon = html`${unsafeSVG(MendelsohnIcons.warning)}`;
                 break;
+              case "fail":
+                statusIcon = html`${unsafeSVG(MendelsohnIcons.diff)}`;
+                break;
               default:
-                statusIcon = "-";
+                statusIcon = html`${unsafeSVG(MendelsohnIcons.nocomparison)}`;
             }
 
-            return html` <li>
+            return html` <li class="test-list-item ${test.status}">
               <span class="status-and-name">
                 <span class="status-icon"> ${statusIcon} </span>
                 <m-button
@@ -160,6 +192,14 @@ class TestList extends MendelsohnMixins(LitElement) {
                 >
               </span>
               <span class="actions">
+                ${test.status === MendelsohnConstants.STATUS_FAIL
+                  ? html`<m-button
+                      @click=${() => {
+                        this._requestSaveNewSnapshots([test.id]);
+                      }}
+                      >${unsafeSVG(MendelsohnIcons.check)}</m-button
+                    >`
+                  : ""}
                 <m-button
                   @click=${() => {
                     this._requestTests([test.id]);

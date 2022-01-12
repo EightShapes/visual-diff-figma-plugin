@@ -24,6 +24,19 @@ export const MendelsohnMixins = (superClass) =>
       this._requestViewportZoom(testIds); // Zoom to test frames when tests are being run
     }
 
+    private async _requestSaveNewSnapshots(testIds) {
+      console.log("SAVE A NEW SNAPSHOT REQUEST!");
+      window.parent.postMessage(
+        {
+          pluginMessage: {
+            type: "save-new-snapshots",
+            data: { testIds },
+          },
+        },
+        "*"
+      );
+    }
+
     private _requestViewportZoom(testIds) {
       window.parent.postMessage(
         {

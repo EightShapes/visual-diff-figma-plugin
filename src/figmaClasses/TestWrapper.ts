@@ -455,6 +455,9 @@ export class TestWrapper {
       },
     ];
     this.frame.fills = [];
+    this.frame.strokeWeight = TestWrapper.STROKE_WEIGHT_DEFAULT;
+    this.frame.strokes = [TestWrapper.WRAPPER_STROKE_DEFAULT];
+
     this.status = "";
     this.frame.setPluginData(TestWrapper.TEST_WRAPPER_LAST_RUN_AT_KEY, "");
     this.lastRunAt = "";

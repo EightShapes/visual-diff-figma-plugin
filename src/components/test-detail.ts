@@ -113,7 +113,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     }
 
     .pass.status-text svg {
-      fill: #b3b3b3;
+      fill: ${unsafeCSS(MendelsohnConstants.NODIFF_COLOR_HEX)};
     }
 
     .fail.status-text {
@@ -434,7 +434,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           <button
             class="primary"
             type="button"
-            @click=${this._handleSaveNewSnapshot}
+            @click=${() => {
+              this._requestSaveNewSnapshots([this.id]);
+            }}
           >
             ${unsafeSVG(MendelsohnIcons.check)} Approve
           </button>
@@ -491,7 +493,8 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         errorMessage = LanguageConstants.ERROR_MESSAGE_ORIGIN_NODE_MISSING;
         break;
       default:
-        resultText = LanguageConstants.NO_COMPARISON_RUN_STATUS_LABEL;
+        resultText = html`${unsafeSVG(MendelsohnIcons.nocomparison)}
+        ${LanguageConstants.NO_COMPARISON_RUN_STATUS_LABEL}`;
     }
 
     const dateLabel = this.status.length === 0 ? "Created" : "Compared";
@@ -569,18 +572,6 @@ class TestDetail extends MendelsohnMixins(LitElement) {
 
   private _terminateDisplayProportionChange(e) {
     this.displayModeSliderDragging = false;
-  }
-
-  private _handleSaveNewSnapshot(e) {
-    window.parent.postMessage(
-      {
-        pluginMessage: {
-          type: "save-new-snapshot",
-          data: { testFrameId: this.id },
-        },
-      },
-      "*"
-    );
   }
 
   private _handleDeleteTest(e) {

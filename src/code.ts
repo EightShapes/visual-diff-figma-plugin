@@ -26,10 +26,12 @@ figma.ui.on("message", (message) => {
     test.setViewProportion(proportion);
   }
 
-  if (message.type === "save-new-snapshot") {
-    const testFrameId = message.data.testFrameId;
-    const test = new TestWrapper(testFrameId);
-    test.saveNewBasline();
+  if (message.type === "save-new-snapshots") {
+    const testIds = message.data.testIds;
+    testIds.forEach((testFrameId) => {
+      const test = new TestWrapper(testFrameId);
+      test.saveNewBasline();
+    });
   }
 
   if (message.type === "delete-test") {

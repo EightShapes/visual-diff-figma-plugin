@@ -8,7 +8,7 @@ const LanguageConstants = {
   EMPTY_STATUS_LABEL: "No comparison run",
   PASS_STATUS_LABEL: "No difference",
   FAIL_STATUS_LABEL: `Difference detected`,
-  NO_COMPARISON_RUN_STATUS_LABEL: `- No comparison run`,
+  NO_COMPARISON_RUN_STATUS_LABEL: `No comparison run`,
   TEST_NOT_RUN_LABEL: "No results, test not yet run.",
   TEST_IN_PROGRESS: "Please wait while the test suite runs.",
   BASELINE_LABEL: "Baseline",

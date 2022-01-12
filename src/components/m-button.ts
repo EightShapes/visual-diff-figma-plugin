@@ -18,6 +18,8 @@ class MButton extends LitElement {
       color: black;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      width: 100%;
     }
 
     button.link {
