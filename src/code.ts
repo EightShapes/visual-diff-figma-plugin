@@ -32,6 +32,12 @@ figma.ui.on("message", (message) => {
     test.saveNewBasline();
   }
 
+  if (message.type === "delete-test") {
+    const testFrameId = message.data.testFrameId;
+    const test = new TestWrapper(testFrameId);
+    test.delete();
+  }
+
   if (message.type === "request-test-detail-data") {
     const testFrameId = message.data.testFrameId;
     const test = new TestWrapper(testFrameId);

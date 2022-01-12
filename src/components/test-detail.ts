@@ -120,6 +120,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       color: ${unsafeCSS(MendelsohnConstants.DIFF_COLOR_HEX)};
     }
 
+    .origin-node-missing.status-text,
     .baseline-too-large.status-text,
     .test-too-large.status-text {
       color: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
@@ -357,13 +358,20 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   renderFooter() {
     const showSaveSnapshotForm =
       this.status === "fail" ||
-      this.status === MendelsohnConstants.BASELINE_TOO_LARGE;
-    console.log("TEST STATUS", this.status);
+      this.status === MendelsohnConstants.STATUS_BASELINE_TOO_LARGE;
+
+    const showCompareButton =
+      this.status !== MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING &&
+      this.status !== MendelsohnConstants.STATUS_BASELINE_TOO_LARGE &&
+      !this.running;
+
+    const showDeleteTestForm =
+      this.status === MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING;
+
     return html` <div class="footer">
       <div class="footer-top">
-        ${this.status === MendelsohnConstants.BASELINE_TOO_LARGE || this.running
-          ? ""
-          : html`<button
+        ${showCompareButton
+          ? html`<button
               @click=${() => {
                 const event = new CustomEvent("test-run-requested", {
                   detail: { testId: this.id },
@@ -377,7 +385,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
             >
               ${unsafeSVG(MendelsohnIcons.play)}
               ${this.status.length > 0 ? `Compare again` : "Compare"}
-            </button>`}
+            </button>`
+          : ""}
+        ${showDeleteTestForm ? this.renderDeleteTestForm() : ""}
         ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}
       </div>
       <div class="footer-bottom">
@@ -419,7 +429,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   }
 
   renderSaveNewSnapshotForm() {
-    return this.status !== MendelsohnConstants.BASELINE_TOO_LARGE
+    return this.status !== MendelsohnConstants.STATUS_BASELINE_TOO_LARGE
       ? html`<form class="update-snapshot-form" id="update-snapshot-form">
           <button
             class="primary"
@@ -430,6 +440,14 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           </button>
         </form>`
       : "";
+  }
+
+  renderDeleteTestForm() {
+    return html`<form class="delete-test-form" id="delete-test-form">
+      <button type="button" @click=${this._handleDeleteTest}>
+        Delete snapshot
+      </button>
+    </form>`;
   }
 
   renderTestRunningMessage() {
@@ -456,16 +474,21 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         resultText = html`${unsafeSVG(MendelsohnIcons.diff)}
         ${LanguageConstants.FAIL_STATUS_LABEL}`;
         break;
-      case MendelsohnConstants.BASELINE_TOO_LARGE:
+      case MendelsohnConstants.STATUS_BASELINE_TOO_LARGE:
         resultText = html`${unsafeSVG(MendelsohnIcons.warning)}
         ${unsafeHTML(LanguageConstants.BASELINE_TOO_LARGE_STATUS_LABEL)}`;
         errorMessage =
           LanguageConstants.BASELINE_TOO_LARGE_STATUS_ERROR_MESSAGE;
         break;
-      case MendelsohnConstants.TEST_TOO_LARGE:
+      case MendelsohnConstants.STATUS_TEST_TOO_LARGE:
         resultText = html`${unsafeSVG(MendelsohnIcons.warning)}
         ${unsafeHTML(LanguageConstants.TEST_TOO_LARGE_STATUS_LABEL)}`;
         errorMessage = LanguageConstants.TEST_TOO_LARGE_STATUS_ERROR_MESSAGE;
+        break;
+      case MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING:
+        resultText = html`${unsafeSVG(MendelsohnIcons.warning)}
+        ${unsafeHTML(LanguageConstants.STATUS_LABEL_ORIGIN_NODE_MISSING)}`;
+        errorMessage = LanguageConstants.ERROR_MESSAGE_ORIGIN_NODE_MISSING;
         break;
       default:
         resultText = LanguageConstants.NO_COMPARISON_RUN_STATUS_LABEL;
@@ -476,8 +499,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       this.status.length === 0 ? this.createdat : this.lastrunat;
 
     const showErrorMessage =
-      this.status === MendelsohnConstants.BASELINE_TOO_LARGE ||
-      this.status === MendelsohnConstants.TEST_TOO_LARGE;
+      this.status === MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING ||
+      this.status === MendelsohnConstants.STATUS_BASELINE_TOO_LARGE ||
+      this.status === MendelsohnConstants.STATUS_TEST_TOO_LARGE;
 
     return html`
       <div class="test-results">
@@ -552,6 +576,18 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       {
         pluginMessage: {
           type: "save-new-snapshot",
+          data: { testFrameId: this.id },
+        },
+      },
+      "*"
+    );
+  }
+
+  private _handleDeleteTest(e) {
+    window.parent.postMessage(
+      {
+        pluginMessage: {
+          type: "delete-test",
           data: { testFrameId: this.id },
         },
       },

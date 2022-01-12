@@ -1,8 +1,9 @@
 const MendelsohnConstants = {
   MAX_IMAGE_DIMENSION: 4096,
   DEFAULT_EMPTY_FRAME_SIZE: 400,
-  BASELINE_TOO_LARGE: "baseline-too-large",
-  TEST_TOO_LARGE: "test-too-large",
+  STATUS_BASELINE_TOO_LARGE: "baseline-too-large",
+  STATUS_TEST_TOO_LARGE: "test-too-large",
+  STATUS_ORIGIN_NODE_MISSING: "origin-node-missing",
   DIFF_COLOR_RGB: {
     r: 1,
     g: 0.258823529411765,

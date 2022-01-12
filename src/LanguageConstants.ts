@@ -15,6 +15,8 @@ const LanguageConstants = {
   LATEST_TEST_IMAGE_LABEL: "Latest",
   NEW_SNAPSHOT_INSTRUCTIONS: `Select frames to add new snapshots to the lower left of the current page.`,
   GO_TO_ORIGINAL_ARTWORK_LABEL: "Go to original artwork",
+  STATUS_LABEL_ORIGIN_NODE_MISSING: `Snapshot error`,
+  ERROR_MESSAGE_ORIGIN_NODE_MISSING: `<strong>The snapshot origin cannot be found.</strong> A latest snapshot cannot be generated because the original frame no longer exists.`,
 };
 
 export { LanguageConstants };

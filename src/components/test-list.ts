@@ -138,8 +138,8 @@ class TestList extends MendelsohnMixins(LitElement) {
               case "pass":
                 statusIcon = html`${unsafeSVG(MendelsohnIcons.check)}`;
                 break;
-              case MendelsohnConstants.TEST_TOO_LARGE:
-              case MendelsohnConstants.BASELINE_TOO_LARGE:
+              case MendelsohnConstants.STATUS_TEST_TOO_LARGE:
+              case MendelsohnConstants.STATUS_BASELINE_TOO_LARGE:
               case "fail":
                 statusIcon = html`${unsafeSVG(MendelsohnIcons.warning)}`;
                 break;
