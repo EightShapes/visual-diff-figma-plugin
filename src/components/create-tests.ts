@@ -1,17 +1,18 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./m-button";
 import { MendelsohnIcons } from "../MendelsohnIcons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { LanguageConstants } from "../LanguageConstants";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 
 @customElement("create-tests")
 class CreateTests extends MendelsohnMixins(LitElement) {
   static styles = css`
     * {
       font-family: "Inter", sans-serif;
-      font-size: 12px;
+      font-size: ${unsafeCSS(MendelsohnConstants.DEFAULT_FONT_SIZE)};
       box-sizing: border-box;
     }
 
@@ -54,7 +55,8 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     }
 
     .create-tests-body p {
-      margin: 0;
+      margin: 0 0 24px;
+      line-height: ${unsafeCSS(MendelsohnConstants.DEFAULT_LINE_HEIGHT)};
     }
 
     .create-tests {
@@ -94,6 +96,19 @@ class CreateTests extends MendelsohnMixins(LitElement) {
       border: 0;
       color: white;
     }
+
+    .oversized-nodes-label {
+      color: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
+      display: block;
+    }
+
+    .nodes-count {
+      font-weight: bold;
+    }
+
+    .oversized-nodes-helper-text {
+      color: ${unsafeCSS(MendelsohnConstants.SECONDARY_TEXT_COLOR_HEX)};
+    }
   `;
 
   @property({ type: Array })
@@ -102,18 +117,32 @@ class CreateTests extends MendelsohnMixins(LitElement) {
   @property({ type: Boolean })
   pagehastests = false;
 
-  get createableSnapshots() {
-    return this.currentselection;
+  get snapshotableNodes() {
+    const nodes = this.currentselection.filter((n) => {
+      return n.height < 4096 && n.width < 4096;
+    });
+    return nodes;
+  }
+
+  get oversizedNodes() {
+    const nodes = this.currentselection.filter((n) => {
+      return n.height > 4096 || n.width > 4096;
+    });
+    return nodes;
   }
 
   render() {
     const itemPlural = this.currentselection.length === 1 ? "item" : "items";
 
-    const creatableSnapshotCount = this.createableSnapshots.length;
+    const snapshotableNodeCount = this.snapshotableNodes.length;
 
-    const actionText = `Add ${creatableSnapshotCount} ${
-      creatableSnapshotCount === 1 ? "snapshot" : "snapshots"
+    const actionText = `Add ${snapshotableNodeCount} ${
+      snapshotableNodeCount === 1 ? "snapshot" : "snapshots"
     }`;
+
+    const oversizedNodesText = `selected ${
+      this.oversizedNodes.length === 1 ? "item is" : "items are"
+    } too large`;
 
     return html`<div class="create-tests">
       <div class="create-tests-header">
@@ -131,12 +160,26 @@ class CreateTests extends MendelsohnMixins(LitElement) {
       <div class="create-tests-body">
         <p>${LanguageConstants.NEW_SNAPSHOT_INSTRUCTIONS}</p>
         ${this.currentselection.length > 0
-          ? html` <p>${this.currentselection.length} selected ${itemPlural}</p>`
+          ? html` <p>
+              <span class="nodes-count">${this.currentselection.length}</span>
+              selected ${itemPlural}
+            </p>`
+          : ""}
+        ${this.oversizedNodes.length > 0
+          ? html`<p class="oversized-nodes">
+              <span class="oversized-nodes-label">
+                <span class="nodes-count">${this.oversizedNodes.length}</span>
+                ${oversizedNodesText}
+              </span>
+              <span class="oversized-nodes-helper-text">
+                Snapshot height and width must not exceed 4096px.
+              </span>
+            </p>`
           : ""}
       </div>
       <div class="footer">
         <m-button variant="link"> Take a tour </m-button>
-        ${this.currentselection.length > 0
+        ${snapshotableNodeCount > 0
           ? html` <button
               @click=${this._createTestsFromSelection}
               class="primary"

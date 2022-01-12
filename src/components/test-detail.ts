@@ -317,7 +317,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       display: block;
       color: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
       padding: 12px;
-      line-height: 1.435454545454545;
+      line-height: ${unsafeCSS(MendelsohnConstants.DEFAULT_LINE_HEIGHT)};
     }
 
     .error-message strong {

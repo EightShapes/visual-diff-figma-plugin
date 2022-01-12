@@ -68,7 +68,12 @@ export class Mendelsohn {
 
   static get currentSelectionSerialized() {
     return figma.currentPage.selection.map((fNode) => {
-      return { name: fNode.name, id: fNode.id };
+      return {
+        name: fNode.name,
+        id: fNode.id,
+        height: fNode.height,
+        width: fNode.width,
+      };
     });
   }
 

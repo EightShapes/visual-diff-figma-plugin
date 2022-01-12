@@ -14,7 +14,9 @@ const MendelsohnConstants = {
   DIFF_COLOR_HEX: "#FF42B3",
   NODIFF_COLOR_HEX: "#b3b3b3",
   ERROR_COLOR_HEX: "#F24822",
+  SECONDARY_TEXT_COLOR_HEX: "#6B6B6B",
   DEFAULT_FONT_SIZE: "11px",
+  DEFAULT_LINE_HEIGHT: "1.435454545454545",
 };
 
 export { MendelsohnConstants };
