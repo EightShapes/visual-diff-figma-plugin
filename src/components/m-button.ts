@@ -1,10 +1,14 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 
 @customElement("m-button")
 class MButton extends LitElement {
   @property()
   variant: string;
+
+  @property()
+  size = "auto";
 
   static styles = css`
     button {
@@ -19,6 +23,11 @@ class MButton extends LitElement {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      font-size: ${unsafeCSS(MendelsohnConstants.DEFAULT_FONT_SIZE)};
+    }
+
+    .fixed {
+      height: 100%;
       width: 100%;
     }
 
@@ -35,6 +44,8 @@ class MButton extends LitElement {
   `;
 
   render() {
-    return html` <button class=${this.variant}><slot></slot></button> `;
+    return html`
+      <button class="${this.variant} ${this.size}"><slot></slot></button>
+    `;
   }
 }

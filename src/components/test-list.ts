@@ -13,6 +13,7 @@ class TestList extends MendelsohnMixins(LitElement) {
       font-family: "Inter", sans-serif;
       font-size: ${unsafeCSS(MendelsohnConstants.DEFAULT_FONT_SIZE)};
       box-sizing: border-box;
+      line-height: ${unsafeCSS(MendelsohnConstants.DEFAULT_LINE_HEIGHT)};
     }
 
     :host {
@@ -195,18 +196,21 @@ class TestList extends MendelsohnMixins(LitElement) {
                 ${test.status === MendelsohnConstants.STATUS_FAIL
                   ? html`<m-button
                       @click=${() => {
+                        size = "fixed";
                         this._requestSaveNewSnapshots([test.id]);
                       }}
                       >${unsafeSVG(MendelsohnIcons.check)}</m-button
                     >`
                   : ""}
                 <m-button
+                  size="fixed"
                   @click=${() => {
                     this._requestTests([test.id]);
                   }}
                   >${unsafeSVG(MendelsohnIcons.play)}</m-button
                 >
                 <m-button
+                  size="fixed"
                   @click=${() => {
                     this._requestViewportZoom([test.id]);
                   }}
