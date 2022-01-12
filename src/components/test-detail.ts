@@ -111,6 +111,10 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       fill: currentColor;
     }
 
+    .pass.status-text svg {
+      fill: #b3b3b3;
+    }
+
     .fail.status-text {
       color: ${unsafeCSS(MendelsohnConstants.DIFF_COLOR_HEX)};
     }
@@ -422,7 +426,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     let resultText;
     switch (this.status) {
       case "pass":
-        resultText = LanguageConstants.PASS_STATUS_LABEL;
+        resultText = html`${unsafeSVG(
+          MendelsohnIcons.nodiff
+        )}${LanguageConstants.PASS_STATUS_LABEL}`;
         break;
       case "fail":
         resultText = html`${unsafeSVG(MendelsohnIcons.diff)}
@@ -435,7 +441,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         resultText = LanguageConstants.TEST_TOO_LARGE_STATUS_LABEL;
         break;
       default:
-        resultText = "No comparison run";
+        resultText = LanguageConstants.NO_COMPARISON_RUN_STATUS_LABEL;
     }
 
     const dateLabel = this.status.length === 0 ? "Created" : "Compared";

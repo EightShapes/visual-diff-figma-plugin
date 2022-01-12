@@ -16,6 +16,7 @@ class MButton extends LitElement {
       text-align: left;
       cursor: pointer;
       color: black;
+      height: 100%;
     }
 
     button.link {
