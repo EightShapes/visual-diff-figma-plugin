@@ -257,12 +257,10 @@ export class TestWrapper {
   }
 
   delete() {
-    console.log("DELETE THIS WHOLE THING!!");
+    // Delete the test
     this.frame.remove();
     Mendelsohn.postCurrentState();
     Mendelsohn.changeUiView("test-list");
-    // Post status
-    // Reset view to list
   }
 
   showImageTooLargeError(snapshotType) {
