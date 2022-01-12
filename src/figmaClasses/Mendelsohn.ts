@@ -160,8 +160,8 @@ export class Mendelsohn {
     });
   }
 
-  async createTestsFromCurrentSelection() {
-    const originNodes = figma.currentPage.selection;
+  async createTestsForNodes(originNodeIds) {
+    const originNodes = originNodeIds.map((id) => figma.getNodeById(id));
     const testGroupFrame = Page.findOrCreateTestsGroupFrame(figma.currentPage);
     const testGroup = new TestGroup(testGroupFrame.id);
     const newTestFrames = await testGroup.createNewTests(

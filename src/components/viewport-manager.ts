@@ -44,7 +44,9 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
       case "create-tests":
         viewOutput = html`<create-tests
           currentselection=${JSON.stringify(this.currentselection)}
+          testgroupframes=${JSON.stringify(this.testgroupframes)}
           ?pagehastests=${this.pagehastests}
+          currentpageid=${this.currentpageid}
         ></create-tests>`;
         break;
       case "test-list":

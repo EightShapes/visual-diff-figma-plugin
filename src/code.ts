@@ -5,8 +5,10 @@ const mendelsohn = new Mendelsohn();
 mendelsohn.initialize();
 
 figma.ui.on("message", (message) => {
-  if (message.type === "create-tests-from-current-selection") {
-    mendelsohn.createTestsFromCurrentSelection();
+  if (message.type === "create-tests-for-nodes") {
+    const nodeIds = message.data.nodeIds;
+
+    mendelsohn.createTestsForNodes(nodeIds);
   }
 
   if (message.type === "run-tests") {

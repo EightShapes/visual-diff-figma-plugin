@@ -6,6 +6,7 @@ import { MendelsohnIcons } from "../MendelsohnIcons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { LanguageConstants } from "../LanguageConstants";
 import { MendelsohnConstants } from "../MendelsohnConstants";
+import { time } from "console";
 
 @customElement("create-tests")
 class CreateTests extends MendelsohnMixins(LitElement) {
@@ -97,6 +98,7 @@ class CreateTests extends MendelsohnMixins(LitElement) {
       color: white;
     }
 
+    .existing-snapshot-nodes-label,
     .oversized-nodes-label {
       color: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
       display: block;
@@ -112,21 +114,56 @@ class CreateTests extends MendelsohnMixins(LitElement) {
   `;
 
   @property({ type: Array })
+  testgroupframes = [];
+
+  @property({ type: Array })
   currentselection = [];
 
   @property({ type: Boolean })
   pagehastests = false;
 
-  get snapshotableNodes() {
-    const nodes = this.currentselection.filter((n) => {
-      return n.height < 4096 && n.width < 4096;
+  @property({ type: String })
+  currentpageid;
+
+  get currentPageTests() {
+    let tests = [];
+    const currentPageData = this.testgroupframes.find((tgf) => {
+      return tgf.pageId === this.currentpageid;
+    });
+
+    if (currentPageData !== undefined) {
+      tests = currentPageData.tests;
+    }
+
+    return tests;
+  }
+
+  get currentPageTestNodeIds() {
+    return this.currentPageTests.map((t) => t.originNodeId);
+  }
+
+  get existingSnapshotNodes() {
+    return this.currentselection.filter((n) =>
+      this.currentPageTestNodeIds.includes(n.id)
+    );
+  }
+
+  get nodesWithoutExistingSnapshot() {
+    return this.currentselection.filter(
+      (n) => !this.currentPageTestNodeIds.includes(n.id)
+    );
+  }
+
+  get oversizedNodes() {
+    const nodes = this.nodesWithoutExistingSnapshot.filter((n) => {
+      return n.height > 4096 || n.width > 4096;
     });
     return nodes;
   }
 
-  get oversizedNodes() {
-    const nodes = this.currentselection.filter((n) => {
-      return n.height > 4096 || n.width > 4096;
+  get snapshotableNodes() {
+    const nodes = this.nodesWithoutExistingSnapshot.filter((n) => {
+      return n.height < 4096 && n.width < 4096;
     });
     return nodes;
   }
@@ -143,6 +180,12 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     const oversizedNodesText = `selected ${
       this.oversizedNodes.length === 1 ? "item is" : "items are"
     } too large`;
+
+    const existingSnapshotNodesText = `selected ${
+      this.existingSnapshotNodes.length === 1
+        ? "item already has a snapshot"
+        : "items already have snapshots"
+    }`;
 
     return html`<div class="create-tests">
       <div class="create-tests-header">
@@ -176,6 +219,16 @@ class CreateTests extends MendelsohnMixins(LitElement) {
               </span>
             </p>`
           : ""}
+        ${this.existingSnapshotNodes.length > 0
+          ? html`<p class="existing-snapshot-nodes">
+              <span class="existing-snapshot-nodes-label">
+                <span class="nodes-count"
+                  >${this.existingSnapshotNodes.length}</span
+                >
+                ${existingSnapshotNodesText}
+              </span>
+            </p>`
+          : ""}
       </div>
       <div class="footer">
         <m-button variant="link"> Take a tour </m-button>
@@ -195,7 +248,10 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     window.parent.postMessage(
       {
         pluginMessage: {
-          type: "create-tests-from-current-selection",
+          type: "create-tests-for-nodes",
+          data: {
+            nodeIds: this.snapshotableNodes.map((n) => n.id),
+          },
         },
       },
       "*"
