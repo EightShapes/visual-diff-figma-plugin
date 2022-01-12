@@ -475,21 +475,13 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     const dateValue =
       this.status.length === 0 ? this.createdat : this.lastrunat;
 
-    const showDateStamp =
-      this.status !== MendelsohnConstants.BASELINE_TOO_LARGE &&
-      this.status !== MendelsohnConstants.TEST_TOO_LARGE;
-
     const showErrorMessage =
       this.status === MendelsohnConstants.BASELINE_TOO_LARGE ||
       this.status === MendelsohnConstants.TEST_TOO_LARGE;
 
     return html`
       <div class="test-results">
-        ${showDateStamp
-          ? html`<h2>
-              <span class="result-label">${dateLabel}</span> ${dateValue}
-            </h2>`
-          : ""}
+        <h2><span class="result-label">${dateLabel}</span> ${dateValue}</h2>
         <h2>
           <span class="result-label status-label">Status</span>
           <span class="status-text ${this.status}"> ${resultText} </span>
