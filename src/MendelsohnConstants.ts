@@ -9,6 +9,8 @@ const MendelsohnConstants = {
     b: 0.701960784313725,
   },
   DIFF_COLOR_HEX: "#FF42B3",
+  ERROR_COLOR_HEX: "#F24822",
+  DEFAULT_FONT_SIZE: "11px",
 };
 
 export { MendelsohnConstants };

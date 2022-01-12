@@ -94,10 +94,6 @@ class CreateTests extends MendelsohnMixins(LitElement) {
       border: 0;
       color: white;
     }
-
-    m-button {
-      min-height: 30px;
-    }
   `;
 
   @property({ type: Array })

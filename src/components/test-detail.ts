@@ -6,13 +6,14 @@ import "./m-button";
 import { MendelsohnConstants } from "../MendelsohnConstants";
 import { MendelsohnIcons } from "../MendelsohnIcons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 @customElement("test-detail")
 class TestDetail extends MendelsohnMixins(LitElement) {
   static styles = css`
     * {
       font-family: "Inter", sans-serif;
-      font-size: 12px;
+      font-size: ${unsafeCSS(MendelsohnConstants.DEFAULT_FONT_SIZE)};
       box-sizing: border-box;
     }
 
@@ -117,6 +118,11 @@ class TestDetail extends MendelsohnMixins(LitElement) {
 
     .fail.status-text {
       color: ${unsafeCSS(MendelsohnConstants.DIFF_COLOR_HEX)};
+    }
+
+    .baseline-too-large.status-text,
+    .test-too-large.status-text {
+      color: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
     }
 
     .test-detail-actions {
@@ -304,6 +310,19 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       justify-content: space-between;
       padding-top: 4px;
     }
+
+    .error-message {
+      border-top: solid 1px #e6e6e6;
+      display: block;
+      color: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
+      padding: 12px;
+      line-height: 1.435454545454545;
+    }
+
+    .error-message strong {
+      display: block;
+      font-size: 11px;
+    }
   `;
 
   @property()
@@ -339,7 +358,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     const showSaveSnapshotForm =
       this.status === "fail" ||
       this.status === MendelsohnConstants.BASELINE_TOO_LARGE;
-
+    console.log("TEST STATUS", this.status);
     return html` <div class="footer">
       <div class="footer-top">
         ${this.status === MendelsohnConstants.BASELINE_TOO_LARGE || this.running
@@ -357,7 +376,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
               title="Compare"
             >
               ${unsafeSVG(MendelsohnIcons.play)}
-              ${this.status !== undefined ? "Compare again" : "Compare"}
+              ${this.status.length > 0 ? `Compare again` : "Compare"}
             </button>`}
         ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}
       </div>
@@ -368,7 +387,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
           }}
           title="Go to original artwork"
           variant="link"
-          >Go to original artwork</m-button
+          >${LanguageConstants.GO_TO_ORIGINAL_ARTWORK_LABEL}</m-button
         >
       </div>
     </div>`;
@@ -400,15 +419,17 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   }
 
   renderSaveNewSnapshotForm() {
-    return html` <form class="update-snapshot-form" id="update-snapshot-form">
-      <button
-        class="primary"
-        type="button"
-        @click=${this._handleSaveNewSnapshot}
-      >
-        ${unsafeSVG(MendelsohnIcons.check)} Approve
-      </button>
-    </form>`;
+    return this.status !== MendelsohnConstants.BASELINE_TOO_LARGE
+      ? html`<form class="update-snapshot-form" id="update-snapshot-form">
+          <button
+            class="primary"
+            type="button"
+            @click=${this._handleSaveNewSnapshot}
+          >
+            ${unsafeSVG(MendelsohnIcons.check)} Approve
+          </button>
+        </form>`
+      : "";
   }
 
   renderTestRunningMessage() {
@@ -424,6 +445,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
 
   renderTestResults() {
     let resultText;
+    let errorMessage;
     switch (this.status) {
       case "pass":
         resultText = html`${unsafeSVG(
@@ -435,10 +457,15 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         ${LanguageConstants.FAIL_STATUS_LABEL}`;
         break;
       case MendelsohnConstants.BASELINE_TOO_LARGE:
-        resultText = LanguageConstants.BASELINE_TOO_LARGE_STATUS_LABEL;
+        resultText = html`${unsafeSVG(MendelsohnIcons.warning)}
+        ${unsafeHTML(LanguageConstants.BASELINE_TOO_LARGE_STATUS_LABEL)}`;
+        errorMessage =
+          LanguageConstants.BASELINE_TOO_LARGE_STATUS_ERROR_MESSAGE;
         break;
       case MendelsohnConstants.TEST_TOO_LARGE:
-        resultText = LanguageConstants.TEST_TOO_LARGE_STATUS_LABEL;
+        resultText = html`${unsafeSVG(MendelsohnIcons.warning)}
+        ${unsafeHTML(LanguageConstants.TEST_TOO_LARGE_STATUS_LABEL)}`;
+        errorMessage = LanguageConstants.TEST_TOO_LARGE_STATUS_ERROR_MESSAGE;
         break;
       default:
         resultText = LanguageConstants.NO_COMPARISON_RUN_STATUS_LABEL;
@@ -452,9 +479,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       this.status !== MendelsohnConstants.BASELINE_TOO_LARGE &&
       this.status !== MendelsohnConstants.TEST_TOO_LARGE;
 
-    const showResultLabel =
-      this.status !== MendelsohnConstants.BASELINE_TOO_LARGE &&
-      this.status !== MendelsohnConstants.TEST_TOO_LARGE;
+    const showErrorMessage =
+      this.status === MendelsohnConstants.BASELINE_TOO_LARGE ||
+      this.status === MendelsohnConstants.TEST_TOO_LARGE;
 
     return html`
       <div class="test-results">
@@ -464,12 +491,13 @@ class TestDetail extends MendelsohnMixins(LitElement) {
             </h2>`
           : ""}
         <h2>
-          <span class="result-label status-label"
-            >${showResultLabel ? "Status" : ""}</span
-          >
+          <span class="result-label status-label">Status</span>
           <span class="status-text ${this.status}"> ${resultText} </span>
         </h2>
       </div>
+      ${showErrorMessage
+        ? html`<div class="error-message">${unsafeHTML(errorMessage)}</div>`
+        : ""}
       ${this.status === "fail" ? this.renderDiffControls() : ""}
     `;
   }
