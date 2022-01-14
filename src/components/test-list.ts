@@ -146,6 +146,12 @@ class TestList extends MendelsohnMixins(LitElement) {
     .${unsafeCSS(MendelsohnConstants.STATUS_TEST_TOO_LARGE)} .status-icon {
       fill: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
     }
+
+    .test-name-button {
+      min-width: 200px;
+      min-height: 1em;
+      cursor: pointer;
+    }
   `;
 
   @property({ type: Array })
@@ -184,6 +190,7 @@ class TestList extends MendelsohnMixins(LitElement) {
               <span class="status-and-name">
                 <span class="status-icon"> ${statusIcon} </span>
                 <m-button
+                  class="test-name-button"
                   variant="link"
                   @click=${() => {
                     this._showTestDetail(test);

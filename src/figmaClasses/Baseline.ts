@@ -8,7 +8,7 @@ export class Baseline {
 
   static createNewFrameForNode = (fNode) => {
     const newFrame = figma.createFrame();
-    newFrame.resize(fNode.width, fNode.height);
+    newFrame.resize(Math.ceil(fNode.width), Math.ceil(fNode.height));
     newFrame.name = fNode.name;
     return newFrame;
   };
@@ -84,7 +84,10 @@ export class Baseline {
       this.frame.fills = [
         { type: "IMAGE", imageHash: screenshotImageHash, scaleMode: "FILL" },
       ];
-      this.frame.resize(this.originNode.width, this.originNode.height);
+      this.frame.resize(
+        Math.ceil(this.originNode.width),
+        Math.ceil(this.originNode.height)
+      );
     } catch (error) {
       this.testWrapper.showImageTooLargeError("baseline");
     }
