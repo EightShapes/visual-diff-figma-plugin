@@ -18,7 +18,8 @@ figma.ui.on("message", (message) => {
 
   if (message.type === "zoom-viewport") {
     const nodeIds = message.data.nodeIds;
-    mendelsohn.centerViewportOnNodeIds(nodeIds);
+    const select = message.data.select;
+    mendelsohn.centerViewportOnNodeIds(nodeIds, select);
   }
 
   if (message.type === "display-mode-proportion-change") {

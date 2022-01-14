@@ -393,7 +393,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       <div class="footer-bottom">
         <m-button
           @click=${() => {
-            this._requestViewportZoom([this.originnodeid]);
+            this._requestViewportZoom([this.originnodeid], true);
           }}
           title="Go to original artwork"
           variant="link"
@@ -529,7 +529,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
             this._changeView("test-list");
           }}
           data-view="test-list"
-          title="Back to tests"
+          title="Back to snapshot list"
           >${unsafeSVG(MendelsohnIcons.back)}</m-button
         >
         <h1 class="origin-name">${this.name}</h1>

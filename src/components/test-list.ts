@@ -103,6 +103,10 @@ class TestList extends MendelsohnMixins(LitElement) {
       width: 16px;
       flex-shrink: 0;
       text-align: center;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .actions {
@@ -202,8 +206,10 @@ class TestList extends MendelsohnMixins(LitElement) {
               <span class="actions">
                 ${test.status === MendelsohnConstants.STATUS_FAIL
                   ? html`<m-button
+                      title="Approve"
+                      size="fixed"
+                      ;
                       @click=${() => {
-                        size = "fixed";
                         this._requestSaveNewSnapshots([test.id]);
                       }}
                       >${unsafeSVG(MendelsohnIcons.check)}</m-button
@@ -211,6 +217,7 @@ class TestList extends MendelsohnMixins(LitElement) {
                   : ""}
                 <m-button
                   size="fixed"
+                  title="Compare"
                   @click=${() => {
                     this._requestTests([test.id]);
                   }}
@@ -218,6 +225,7 @@ class TestList extends MendelsohnMixins(LitElement) {
                 >
                 <m-button
                   size="fixed"
+                  title="Go To Snapshot"
                   @click=${() => {
                     this._requestViewportZoom([test.id]);
                   }}

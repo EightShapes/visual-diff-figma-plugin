@@ -13,8 +13,8 @@
     "watch-ui": "chokidar \"src/ui.html\" \"src/ui-scripts.js\" \"src/components/*.ts\" \"src/*.ts\" -c \"npm run build-ui\"",
     "watch-all": "npm-run-all --parallel watch-ui watch-plugin-js"
   },
-  "author": "",
-  "license": "",
+  "author": "Kevin Powell <kevin@eightshapes.com>",
+  "license": "MIT",
   "devDependencies": {
     "@figma/plugin-typings": "^1.39.1",
     "@types/node": "^16.11.11",

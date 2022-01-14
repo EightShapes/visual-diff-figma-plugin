@@ -37,12 +37,12 @@ export const MendelsohnMixins = (superClass) =>
       );
     }
 
-    private _requestViewportZoom(testIds) {
+    private _requestViewportZoom(testIds, select = false) {
       window.parent.postMessage(
         {
           pluginMessage: {
             type: "zoom-viewport",
-            data: { nodeIds: testIds },
+            data: { nodeIds: testIds, select },
           },
         },
         "*"

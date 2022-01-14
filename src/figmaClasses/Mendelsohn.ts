@@ -172,11 +172,15 @@ export class Mendelsohn {
     Mendelsohn.changeUiView("test-list");
   }
 
-  centerViewportOnNodeIds(nodeIds) {
+  centerViewportOnNodeIds(nodeIds, select) {
     const nodes = nodeIds
       .map((id) => figma.getNodeById(id))
       .filter((node) => node !== null);
     figma.viewport.scrollAndZoomIntoView(nodes);
+
+    if (select) {
+      figma.currentPage.selection = nodes;
+    }
   }
 
   async runTests(testIds) {
