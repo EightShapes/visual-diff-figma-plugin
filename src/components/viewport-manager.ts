@@ -59,7 +59,7 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
         break;
       case "test-detail":
         viewOutput = html`<test-detail
-          name=${this.activetestwrapper.name}
+          name=${this.activetestwrapper.originNodeName}
           id=${this.activetestwrapper.id}
           status=${this.activetestwrapper.status}
           createdat=${this.activetestwrapper.createdAt}

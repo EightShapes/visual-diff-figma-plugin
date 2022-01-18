@@ -200,7 +200,7 @@ class TestList extends MendelsohnMixins(LitElement) {
                     this._showTestDetail(test);
                     this._requestViewportZoom([test.id]);
                   }}
-                  >${test.name}</m-button
+                  >${test.originNodeName}</m-button
                 >
               </span>
               <span class="actions">

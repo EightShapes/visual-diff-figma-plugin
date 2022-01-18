@@ -7,6 +7,7 @@ import { MendelsohnConstants } from "../MendelsohnConstants";
 import { MendelsohnIcons } from "../MendelsohnIcons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { Mendelsohn } from "../figmaClasses/Mendelsohn";
 
 @customElement("test-detail")
 class TestDetail extends MendelsohnMixins(LitElement) {
@@ -310,6 +311,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       align-items: center;
       justify-content: space-between;
       padding-top: 4px;
+      user-select: none;
     }
 
     .error-message {

@@ -204,6 +204,7 @@ export class TestWrapper {
     return {
       name: this.frame.name,
       id: this.frame.id,
+      originNodeName: this.originNode.name,
       originNodeId: this.originNodeId,
       status: this.status,
       createdAt: this.createdAt,

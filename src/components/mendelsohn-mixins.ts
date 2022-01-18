@@ -1,3 +1,5 @@
+import { Mendelsohn } from "../figmaClasses/Mendelsohn";
+
 export const MendelsohnMixins = (superClass) =>
   class extends superClass {
     /* class fields & methods to extend superClass with */
