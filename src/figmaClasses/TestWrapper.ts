@@ -349,10 +349,10 @@ export class TestWrapper {
       label.layoutAlign = "STRETCH";
       label.fontName = Mendelsohn.DEFAULT_FONT;
       label.fontSize = TestWrapper.LABEL_FONT_SIZE;
-      label.characters = `${LanguageConstants.LATEST_TEST_IMAGE_LABEL}`;
       testFrameWrapper.appendChild(label);
 
       const testFrame = TestWrapper.createNewFrameForNode(this.baselineFrame);
+      label.characters = `${LanguageConstants.LATEST_TEST_IMAGE_LABEL}${testFrame.id}`;
       testFrame.setPluginData(TestWrapper.TEST_FRAME_KEY, "true");
       testFrame.name = `${this.originNode.name}`;
       testFrame.layoutMode = "VERTICAL";
@@ -584,10 +584,17 @@ export class TestWrapper {
           this.testFrame.width,
           this.baselineFrame.width
         );
+        const cropWidthXTransform = diffWidth / this.testFrame.width; // This must be calculated before the frame resize
+        const cropWidthYTransform = diffHeight / this.testFrame.height; // This must be calculated before the frame resize
 
         this.testFrame.resize(diffWidth, diffHeight);
+
         const testImage = JSON.parse(JSON.stringify(this.testFrame.fills[0]));
-        testImage.scaleMode = "FIT";
+        testImage.scaleMode = "CROP";
+        testImage.imageTransform = [
+          [cropWidthXTransform, 0, 0],
+          [0, cropWidthYTransform, 0],
+        ];
         const diffImage = {
           type: "IMAGE",
           imageHash: figma.createImage(encodedImageDiff).hash,

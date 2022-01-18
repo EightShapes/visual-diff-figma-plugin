@@ -1,6 +1,13 @@
 import { LitElement, html } from "lit";
 import { customElement } from "lit/decorators.js";
 const pixelmatch = require("pixelmatch"); // esbuild lets this work, even though it's cjs
+const pixelmatchOptions = {
+  threshold: 0.1,
+  diffColor: [255, 66, 179],
+  aaColor: [255, 66, 179],
+  alpha: 0.3,
+  diffMask: true, // determines if the output should be a transparent mask with diff pixels in color or include a desaturated image with diff pixels in color
+};
 
 @customElement("image-processor")
 class ImageProcessor extends LitElement {
@@ -33,7 +40,6 @@ class ImageProcessor extends LitElement {
       img.onerror = () => reject();
       img.src = url;
     });
-    console.log(image);
     canvas.width = width;
     canvas.height = height;
     ctx.drawImage(image, 0, 0);
@@ -42,37 +48,28 @@ class ImageProcessor extends LitElement {
   };
 
   getImageDiff = async (imageData) => {
-    console.log("GID", this);
     const canvas = this.shadowRoot.querySelector("canvas");
     const ctx = canvas.getContext("2d");
     const { baseline, test } = imageData;
 
     // If test is wider/taller than baseline, pad out baseline with white pixels
-    // If baseline is wider/taller than test, pad out test with white pixels
+    // If baseline is wider/taller than test, pad out test with black pixels - the black/white comparison will help highlight the size difference
     const largestWidth = Math.max(baseline.width, test.width);
     const largestHeight = Math.max(baseline.height, test.height);
 
-    const baselineImageCanvas = await this._decode(
+    await this._decode(
       canvas,
       ctx,
       baseline.image,
       largestWidth,
       largestHeight
-    );
+    ); // Creates side effects on ctx from which img1 is extracted
     const img1 = ctx.getImageData(0, 0, largestWidth, largestHeight);
 
-    const testImageCanvas = await this._decode(
-      canvas,
-      ctx,
-      test.image,
-      largestWidth,
-      largestHeight
-    );
+    await this._decode(canvas, ctx, test.image, largestWidth, largestHeight); // Creates side effects on ctx from which img2 is extracted
     const img2 = ctx.getImageData(0, 0, largestWidth, largestHeight);
 
     const diff = ctx.createImageData(largestWidth, largestHeight);
-
-    console.log(`DIFF DIMENSIONS: ${largestWidth} x ${largestHeight}`);
 
     const pixelDiffCount = pixelmatch(
       img1.data,
@@ -80,20 +77,12 @@ class ImageProcessor extends LitElement {
       diff.data,
       largestWidth,
       largestHeight,
-      {
-        threshold: 0.1,
-        diffColor: [255, 66, 179],
-        aaColor: [255, 66, 179],
-        alpha: 0.3,
-        diffMask: true,
-      }
+      pixelmatchOptions
     );
 
     ctx.putImageData(diff, 0, 0);
 
     const encodedImageDiff = await this._encode(canvas, ctx, diff);
-
-    console.log("diff", diff);
 
     return {
       pixelDiffCount,
