@@ -10,16 +10,24 @@ export class Page {
   static copyChildren(children) {
     // Incomplete, only copies id, x, and y properties for child nodes
     return children.map((object) => {
-      return { id: object.id, y: object.y, x: object.x };
+      return {
+        id: object.id,
+        y: object.y,
+        x: object.x,
+        name: object.name,
+        height: object.height,
+      };
     });
   }
 
   static getNextAvailableCoordinates(pageNode) {
-    const childNodes = Page.copyChildren(pageNode.children); // Make a copy since sort() runs in place
-    const childNodesSortedByY = childNodes.sort((a, b) => b.y - a.y);
-    const lowestChild = figma.getNodeById(childNodesSortedByY[0].id);
-    const childNodesSortedByX = childNodes.sort((a, b) => a.x - b.x);
-    const leftmostChild = figma.getNodeById(childNodesSortedByX[0].id);
+    const xSortedNodes = Page.copyChildren(pageNode.children); // Make a copy since sort() runs in place
+    xSortedNodes.sort((a, b) => a.x - b.x);
+    const leftmostChild = figma.getNodeById(xSortedNodes[0].id);
+
+    const ySortedNodes = Page.copyChildren(pageNode.children); // Make a copy since sort() runs in place
+    ySortedNodes.sort((a, b) => b.y + b.height - (a.y + a.height));
+    const lowestChild = figma.getNodeById(ySortedNodes[0].id);
 
     let x, y;
 
