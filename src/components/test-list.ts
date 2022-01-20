@@ -146,6 +146,7 @@ class TestList extends MendelsohnMixins(LitElement) {
       fill: ${unsafeCSS(MendelsohnConstants.DIFF_COLOR_HEX)};
     }
 
+    .${unsafeCSS(MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING)} .status-icon,
     .${unsafeCSS(MendelsohnConstants.STATUS_BASELINE_TOO_LARGE)} .status-icon,
     .${unsafeCSS(MendelsohnConstants.STATUS_TEST_TOO_LARGE)} .status-icon {
       fill: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
@@ -181,6 +182,7 @@ class TestList extends MendelsohnMixins(LitElement) {
                 break;
               case MendelsohnConstants.STATUS_TEST_TOO_LARGE:
               case MendelsohnConstants.STATUS_BASELINE_TOO_LARGE:
+              case MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING:
                 statusIcon = html`${unsafeSVG(MendelsohnIcons.warning)}`;
                 break;
               case "fail":
@@ -189,6 +191,11 @@ class TestList extends MendelsohnMixins(LitElement) {
               default:
                 statusIcon = html`${unsafeSVG(MendelsohnIcons.nocomparison)}`;
             }
+
+            const snapshotName =
+              test.status === MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING
+                ? test.name
+                : test.originNodeName; // If the origin node is missing, use the test's name and not the current origin node name.
 
             return html` <li class="test-list-item ${test.status}">
               <span class="status-and-name">
@@ -200,7 +207,7 @@ class TestList extends MendelsohnMixins(LitElement) {
                     this._showTestDetail(test);
                     this._requestViewportZoom([test.id]);
                   }}
-                  >${test.originNodeName}</m-button
+                  >${snapshotName}</m-button
                 >
               </span>
               <span class="actions">

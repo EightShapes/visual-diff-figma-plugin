@@ -201,10 +201,15 @@ export class TestWrapper {
   }
 
   get serializedData() {
+    if (this.originNodeMissing) {
+      this.status = MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING;
+    }
+
     return {
       name: this.frame.name,
       id: this.frame.id,
-      originNodeName: this.originNode.name,
+      originNodeName:
+        this.originNode !== null ? this.originNode.name : "MISSING",
       originNodeId: this.originNodeId,
       status: this.status,
       createdAt: this.createdAt,
@@ -561,7 +566,6 @@ export class TestWrapper {
     // Check for origin existence
     if (this.originNodeMissing) {
       this.status = MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING;
-      console.log("MISSING FOR SURE", this.serializedData);
       this.postTestDetailUpdate();
       Mendelsohn.postCurrentState();
     } else {

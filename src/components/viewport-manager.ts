@@ -4,6 +4,7 @@ import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./test-list";
 import "./test-detail";
 import "./create-tests";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 
 @customElement("viewport-manager")
 class ViewportManager extends MendelsohnMixins(LitElement) {
@@ -58,8 +59,13 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
         ></test-list>`;
         break;
       case "test-detail":
+        const testDetailName =
+          this.activetestwrapper.status ===
+          MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING
+            ? this.activetestwrapper.name
+            : this.activetestwrapper.originNodeName;
         viewOutput = html`<test-detail
-          name=${this.activetestwrapper.originNodeName}
+          name=${testDetailName}
           id=${this.activetestwrapper.id}
           status=${this.activetestwrapper.status}
           createdat=${this.activetestwrapper.createdAt}
