@@ -392,16 +392,18 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         ${showDeleteTestForm ? this.renderDeleteTestForm() : ""}
         ${showSaveSnapshotForm ? this.renderSaveNewSnapshotForm() : ""}
       </div>
-      <div class="footer-bottom">
-        <m-button
-          @click=${() => {
-            this._requestViewportZoom([this.originnodeid], true);
-          }}
-          title="Go to original artwork"
-          variant="link"
-          >${LanguageConstants.GO_TO_ORIGINAL_ARTWORK_LABEL}</m-button
-        >
-      </div>
+      ${this.status !== MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING
+        ? html`<div class="footer-bottom">
+            <m-button
+              @click=${() => {
+                this._requestViewportZoom([this.originnodeid], true);
+              }}
+              title="Go to original artwork"
+              variant="link"
+              >${LanguageConstants.GO_TO_ORIGINAL_ARTWORK_LABEL}</m-button
+            >
+          </div>`
+        : ""}
     </div>`;
   }
 
