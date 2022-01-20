@@ -280,10 +280,8 @@ export class TestWrapper {
       const baselineFrameWrapper = Baseline.createNewBaselineFrame(
         this.originNode
       );
-      console.log(baselineFrameWrapper);
       this.imageWrapper.appendChild(baselineFrameWrapper);
     }
-    console.log(this.baselineFrame.id);
     const baseline = new Baseline(this.baselineFrame.id);
     baseline.update();
   }
@@ -352,7 +350,7 @@ export class TestWrapper {
       testFrameWrapper.appendChild(label);
 
       const testFrame = TestWrapper.createNewFrameForNode(this.baselineFrame);
-      label.characters = `${LanguageConstants.LATEST_TEST_IMAGE_LABEL}${testFrame.id}`;
+      label.characters = `${LanguageConstants.LATEST_TEST_IMAGE_LABEL}`;
       testFrame.setPluginData(TestWrapper.TEST_FRAME_KEY, "true");
       testFrame.name = `${this.originNode.name}`;
       testFrame.layoutMode = "VERTICAL";

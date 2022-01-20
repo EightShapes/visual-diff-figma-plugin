@@ -1,6 +1,6 @@
 {
   "name": "mendelsohn",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "Visual Diffing Plugin",
   "main": "code.js",
   "scripts": {
