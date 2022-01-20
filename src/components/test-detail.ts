@@ -215,80 +215,53 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     }
 
     input[type="range"] {
-      -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
-      width: 100%; /* Specific width is required for Firefox. */
-      background: transparent; /* Otherwise white in Chrome */
-      margin: 0;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
+      background: transparent;
+      margin: 0;
+      width: 100%;
+      position: relative;
+      z-index: 10;
     }
 
     input[type="range"]:focus {
-      outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
-    }
-
-    input[type="range"]::-ms-track {
-      width: 100%;
-      cursor: pointer;
-
-      /* Hides the slider so custom styles can be added */
-      background: transparent;
-      border-color: transparent;
-      color: transparent;
-    }
-
-    /* Special styling for WebKit/Blink */
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 10px;
-      width: 10px;
-      border-radius: 20px;
-      background: black;
-      cursor: pointer;
-    }
-
-    /* All the same stuff for Firefox */
-    input[type="range"]::-moz-range-thumb {
-      height: 10px;
-      width: 10px;
-      border-radius: 20px;
-      background: black;
-      cursor: pointer;
-    }
-
-    /* All the same stuff for IE */
-    input[type="range"]::-ms-thumb {
-      height: 10px;
-      width: 10px;
-      border-radius: 20px;
-      background: black;
-      cursor: pointer;
+      outline: none;
     }
 
     input[type="range"]::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 10px;
-      cursor: pointer;
       background: transparent;
+      height: 10px;
       border: 0;
     }
 
     input[type="range"]::-moz-range-track {
-      width: 100%;
-      height: 10px;
-      cursor: pointer;
       background: transparent;
+      height: 10px;
       border: 0;
     }
 
-    input[type="range"]::-ms-track {
-      width: 100%;
-      height: 10px;
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 40px;
+      width: 12px;
+      background: radial-gradient(
+        circle at 6px 6px,
+        black 0,
+        black 5px,
+        transparent 6px
+      );
       cursor: pointer;
-      background: transparent;
-      border: 0;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      height: 40px;
+      width: 12px;
+      background: radial-gradient(
+        circle at 6px 6px,
+        black 0,
+        black 5px,
+        transparent 6px
+      );
+      cursor: pointer;
     }
 
     .range-slider-wrap {
@@ -299,7 +272,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     .range-slider-wrap::after {
       content: "";
       position: absolute;
-      top: 5px;
+      top: 6px;
       height: 1px;
       background: black;
       width: 100%;
