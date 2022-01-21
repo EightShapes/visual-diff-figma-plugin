@@ -57,6 +57,7 @@ archive.pipe(output);
 // archive.append(buffer3, { name: "file3.txt" });
 
 // append a file
+archive.file("LICENSE", { name: "LICENSE" });
 archive.file("manifest.json", { name: "manifest.json" });
 archive.file("dist/code.js", { name: "dist/code.js" });
 archive.file("dist/ui.html", { name: "dist/ui.html" });
