@@ -328,6 +328,9 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   constructor() {
     super();
     this.displayModeSliderDragging = false;
+    this.diffStrobe = false;
+    this.diffStrobeInterval;
+    this.diffImageStrobeIndex = 1;
   }
 
   renderFooter() {
@@ -401,6 +404,14 @@ class TestDetail extends MendelsohnMixins(LitElement) {
             <span class="range-slider-wrap-max">100%</span>
           </div>
         </div>
+        <button
+          @click=${(e) => {
+            e.preventDefault();
+            this._toggleDiffStrobe([this.id]);
+          }}
+        >
+          Strobe Diff
+        </button>
       </form>
     `;
   }
@@ -504,6 +515,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         <m-button
           @click=${() => {
             this._changeView("test-list");
+            this._cancelDiffStrobe(this.id);
           }}
           data-view="test-list"
           title="Back to snapshot list"
@@ -540,6 +552,47 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         },
         "*"
       );
+    }
+  }
+
+  private _cancelDiffStrobe(testFrameId) {
+    this.diffStrobe = false;
+    clearInterval(this.diffStrobeInterval);
+    // cancel the interval, send the message to reset the canvas
+    window.parent.postMessage(
+      {
+        pluginMessage: {
+          type: "reset-diff-image",
+          data: {
+            testFrameId,
+          },
+        },
+      },
+      "*"
+    );
+  }
+
+  private _toggleDiffStrobe(testFrameId) {
+    if (this.diffStrobe === true) {
+      this._cancelDiffStrobe(testFrameId);
+    } else {
+      this.diffStrobe = true;
+      this.diffStrobeInterval = setInterval(() => {
+        this.diffImageStrobeIndex =
+          this.diffImageStrobeIndex > 2 ? 1 : this.diffImageStrobeIndex + 1; // TODO: This is the part that isn't working
+        window.parent.postMessage(
+          {
+            pluginMessage: {
+              type: "show-diff-image",
+              data: {
+                diffImageStrobeIndex: this.diffImageStrobeIndex,
+                testFrameId,
+              },
+            },
+          },
+          "*"
+        );
+      }, MendelsohnConstants.DIFF_STROBE_SPEED);
     }
   }
 

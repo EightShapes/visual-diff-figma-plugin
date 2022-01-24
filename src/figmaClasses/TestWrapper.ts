@@ -433,9 +433,19 @@ export class TestWrapper {
     const response = new Promise((resolve, reject) => {
       const diffCreatedHandler = (msg) => {
         if (msg.type === "diff-created" && msg.testId === this.frame.id) {
-          const { encodedImageDiff, pixelDiffCount } = msg.data;
+          const {
+            encodedImageDiff,
+            pixelDiffCount,
+            encodedImageDiffAlt1,
+            encodedImageDiffAlt2,
+          } = msg.data;
           figma.ui.off("message", diffCreatedHandler); // Remove event handler after it executes so they don't pile up on subsequent runs
-          return resolve({ encodedImageDiff, pixelDiffCount });
+          return resolve({
+            encodedImageDiff,
+            pixelDiffCount,
+            encodedImageDiffAlt1,
+            encodedImageDiffAlt2,
+          });
         }
       };
 
@@ -572,8 +582,12 @@ export class TestWrapper {
       const testFrameUpdateSuccessful = await this.updateTestFrame();
 
       if (testFrameUpdateSuccessful) {
-        const { encodedImageDiff, pixelDiffCount } =
-          await this.createImageDiff();
+        const {
+          encodedImageDiff,
+          pixelDiffCount,
+          encodedImageDiffAlt1,
+          encodedImageDiffAlt2,
+        } = await this.createImageDiff();
         const testStatus = pixelDiffCount > 0 ? "fail" : "pass";
 
         this.updateTestStatus(testStatus);
@@ -603,7 +617,26 @@ export class TestWrapper {
           scaleMode: "FILL",
         };
 
-        this.testFrame.fills = [testImage, diffImage];
+        const diffAlt1Image = {
+          type: "IMAGE",
+          imageHash: figma.createImage(encodedImageDiffAlt1).hash,
+          scaleMode: "FILL",
+          opacity: 0,
+        };
+
+        const diffAlt2Image = {
+          type: "IMAGE",
+          imageHash: figma.createImage(encodedImageDiffAlt2).hash,
+          scaleMode: "FILL",
+          opacity: 0,
+        };
+
+        this.testFrame.fills = [
+          testImage,
+          diffImage,
+          diffAlt1Image,
+          diffAlt2Image,
+        ];
 
         this.postTestDetailUpdate();
         Mendelsohn.postCurrentState();
@@ -619,5 +652,18 @@ export class TestWrapper {
       testFrameFills[1].opacity = parseFloat(viewProportion);
       this.testFrame.fills = testFrameFills;
     }
+  }
+
+  showDiffImage(diffImageIndex) {
+    let testFrameFills = JSON.parse(JSON.stringify(this.testFrame.fills));
+    testFrameFills = testFrameFills.map((f, index) => {
+      if (index === 0 || index === diffImageIndex) {
+        f.opacity = 1;
+      } else {
+        f.opacity = 0;
+      }
+      return f;
+    });
+    this.testFrame.fills = testFrameFills;
   }
 }

@@ -7,7 +7,6 @@ const imageProcessor = document.querySelector("image-processor");
 document.addEventListener("test-run-requested", (e) => {
   const testId = e.detail.testId;
   if (viewportManager.activetestwrapper.id === testId) {
-    console.log("IT MATCHES");
     const testData = JSON.parse(
       JSON.stringify(viewportManager.activetestwrapper)
     );
@@ -49,7 +48,7 @@ onmessage = async (message) => {
       viewportManager.activetestwrapper = message.data.pluginMessage.data;
       break;
     case "get-image-diff":
-      const diffData = await imageProcessor.getImageDiff(
+      const diffData = await imageProcessor.getImageDiffData(
         message.data.pluginMessage.data
       );
       parent.postMessage(

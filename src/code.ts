@@ -48,4 +48,20 @@ figma.ui.on("message", (message) => {
     const test = new TestWrapper(testFrameId);
     test.postTestDetailUpdate();
   }
+
+  if (message.type === "show-diff-image") {
+    console.log("SHOW DIFF IMAGE");
+    const testFrameId = message.data.testFrameId;
+    const diffImageStrobeIndex = message.data.diffImageStrobeIndex;
+    const test = new TestWrapper(testFrameId);
+    test.showDiffImage(diffImageStrobeIndex);
+  }
+
+  if (message.type === "reset-diff-image") {
+    const testFrameId = message.data.testFrameId;
+    const test = new TestWrapper(testFrameId);
+    test.showDiffImage(1); // 1 is the numeric index for the default (magenta) diff image
+    const viewProportion = test.viewProportion;
+    test.setViewProportion(viewProportion);
+  }
 });

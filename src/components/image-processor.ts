@@ -1,10 +1,15 @@
 import { LitElement, html } from "lit";
 import { customElement } from "lit/decorators.js";
+import { MendelsohnConstants } from "../MendelsohnConstants";
 const pixelmatch = require("pixelmatch"); // esbuild lets this work, even though it's cjs
+const diffColorKeys = Object.keys(MendelsohnConstants.DIFF_COLOR_RGB);
+const diffColorRgb = diffColorKeys.map(
+  (colorChannel) => MendelsohnConstants.DIFF_COLOR_RGB[colorChannel] * 255
+);
 const pixelmatchOptions = {
   threshold: 0.1,
-  diffColor: [255, 66, 179],
-  aaColor: [255, 66, 179],
+  diffColor: diffColorRgb,
+  aaColor: diffColorRgb,
   alpha: 0.3,
   diffMask: true, // determines if the output should be a transparent mask with diff pixels in color or include a desaturated image with diff pixels in color
 };
@@ -47,7 +52,7 @@ class ImageProcessor extends LitElement {
     return imageData;
   };
 
-  getImageDiff = async (imageData) => {
+  getImageDiff = async (imageData, diffColor = diffColorRgb) => {
     const canvas = this.shadowRoot.querySelector("canvas");
     const ctx = canvas.getContext("2d");
     const { baseline, test } = imageData;
@@ -71,6 +76,9 @@ class ImageProcessor extends LitElement {
 
     const diff = ctx.createImageData(largestWidth, largestHeight);
 
+    pixelmatchOptions.aaColor = diffColor;
+    pixelmatchOptions.diffColor = diffColor;
+
     const pixelDiffCount = pixelmatch(
       img1.data,
       img2.data,
@@ -84,9 +92,30 @@ class ImageProcessor extends LitElement {
 
     const encodedImageDiff = await this._encode(canvas, ctx, diff);
 
+    return { encodedImageDiff, pixelDiffCount };
+  };
+
+  getImageDiffData = async (imageData, diffColor = diffColorRgb) => {
+    const { baseline, test } = imageData;
+    const { encodedImageDiff, pixelDiffCount } = await this.getImageDiff(
+      imageData,
+      diffColor
+    );
+
+    const { encodedImageDiff: encodedImageDiffAlt1 } = await this.getImageDiff(
+      imageData,
+      [0, 255, 0]
+    );
+    const { encodedImageDiff: encodedImageDiffAlt2 } = await this.getImageDiff(
+      imageData,
+      [0, 0, 255]
+    );
+
     return {
       pixelDiffCount,
       encodedImageDiff,
+      encodedImageDiffAlt1,
+      encodedImageDiffAlt2,
       baselineNodeId: baseline.nodeId,
       testNodeId: test.nodeId,
     };

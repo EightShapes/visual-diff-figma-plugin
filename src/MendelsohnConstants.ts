@@ -17,6 +17,7 @@ const MendelsohnConstants = {
   SECONDARY_TEXT_COLOR_HEX: "#6B6B6B",
   DEFAULT_FONT_SIZE: "11px",
   DEFAULT_LINE_HEIGHT: "1.435454545454545",
+  DIFF_STROBE_SPEED: 100,
 };
 
 export { MendelsohnConstants };
