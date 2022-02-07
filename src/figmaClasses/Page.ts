@@ -25,8 +25,6 @@ export class Page {
     xSortedNodes.sort((a, b) => a.x - b.x);
     const leftmostChild = figma.getNodeById(xSortedNodes[0].id);
 
-    console.log("XSORT", leftmostChild);
-
     const ySortedNodes = Page.copyChildren(pageNode.children); // Make a copy since sort() runs in place
     ySortedNodes.sort((a, b) => b.y + b.height - (a.y + a.height));
     const lowestChild = figma.getNodeById(ySortedNodes[0].id);

@@ -48,6 +48,14 @@ export class Mendelsohn {
     });
   }
 
+  set state(stateObject) {
+    this._state = stateObject;
+  }
+
+  get state() {
+    return this._state;
+  }
+
   static DATE_FORMAT_OPTIONS = {
     day: "2-digit",
     month: "2-digit",
@@ -66,7 +74,7 @@ export class Mendelsohn {
     return now.toLocaleTimeString(undefined, Mendelsohn.DATE_FORMAT_OPTIONS);
   }
 
-  static get currentSelectionSerialized() {
+  get currentSelectionSerialized() {
     return figma.currentPage.selection.map((fNode) => {
       return {
         name: fNode.name,
@@ -75,18 +83,6 @@ export class Mendelsohn {
         width: fNode.width,
       };
     });
-  }
-
-  static get currentTestGroups() {
-    let testGroups = [];
-    figma.root.children.forEach((pageNode) => {
-      const testGroupFrame = Page.findTestsGroupFrame(pageNode);
-      if (testGroupFrame !== null) {
-        const testGroup = new TestGroup(testGroupFrame.id);
-        testGroups.push(testGroup.serializedData);
-      }
-    });
-    return testGroups;
   }
 
   static get pageHasTests() {
@@ -132,7 +128,7 @@ export class Mendelsohn {
   sendCurrentSelectionToUi() {
     figma.ui.postMessage({
       type: "current-selection-changed",
-      data: Mendelsohn.currentSelectionSerialized,
+      data: this.currentSelectionSerialized,
     });
   }
 
@@ -163,12 +159,13 @@ export class Mendelsohn {
   async createTestsForNodes(originNodeIds) {
     const originNodes = originNodeIds.map((id) => figma.getNodeById(id));
     const testGroupFrame = Page.findOrCreateTestsGroupFrame(figma.currentPage);
-    const testGroup = new TestGroup(testGroupFrame.id);
+    const testGroup = new TestGroup(testGroupFrame.id, this); // TODO: Should look this up in state, not create a new one
+    // TODO: If a truly new group is created, it needs to be saved to state
     const newTestFrames = await testGroup.createNewTests(
       originNodes.map((node) => node.id)
     );
     figma.viewport.scrollAndZoomIntoView(newTestFrames);
-    Mendelsohn.postCurrentState();
+    this.sendStateToUi();
     Mendelsohn.changeUiView("test-list");
   }
 
@@ -185,7 +182,7 @@ export class Mendelsohn {
 
   async runTests(testIds) {
     for (const testId of testIds) {
-      const test = new TestWrapper(testId);
+      const test = this.getTestById(testId);
 
       if (test.frame !== null) {
         await test.runTest();
@@ -196,32 +193,97 @@ export class Mendelsohn {
     }
     if (testIds.length > 1) {
       // If All tests were run, then update the current state...this is problematic if a single play button is pressed in test list view
-      Mendelsohn.postCurrentState();
+      this.sendStateToUi();
     }
   }
 
-  static postCurrentState() {
-    // Might be problematic that this is a class method and not an instance method
-    const currentState = {
-      currentSelection: Mendelsohn.currentSelectionSerialized,
-      currentPageId: figma.currentPage.id,
-      testGroups: Mendelsohn.currentTestGroups, // TODO: This is expensive to serialize, limit to current page test group
-      pageHasTests: Mendelsohn.pageHasTests,
+  get pageIds() {
+    const ids = Object.keys(this.state.pages);
+    return ids;
+  }
+
+  get serializedState() {
+    const serialized = {
+      pages: {},
     };
+
+    this.pageIds.forEach((id) => {
+      const page = this.state.pages[id];
+      serialized.pages[id] = {
+        name: page.name,
+        testGroupNodeId: page.testGroupNodeId,
+      };
+
+      if (page.testGroupNodeId !== undefined) {
+        serialized.pages[id].tests = page.testGroup.serializedTests;
+      }
+    });
+
+    return serialized;
+  }
+
+  getTestById(testId) {
+    let test = null;
+
+    this.pageIds.forEach((id) => {
+      const page = this.state.pages[id];
+      if (page.testGroup) {
+        const searchResult = page.testGroup.getTestById(testId);
+        if (searchResult !== null) {
+          test = searchResult;
+        }
+      }
+    });
+
+    return test;
+  }
+
+  sendStateToUi() {
+    this.scrapeStateFromCanvas();
 
     figma.ui.postMessage({
       type: "state-update",
-      data: currentState,
+      data: {
+        currentPageId: figma.currentPage.id,
+        currentSelection: this.currentSelectionSerialized,
+        state: this.serializedState,
+      },
     });
+  }
+
+  scrapeStateFromCanvas() {
+    const stateObject = {
+      pages: {},
+    };
+
+    // Scan all pages find test wrappers create objects and save the state
+    figma.root.children.forEach((pageNode) => {
+      stateObject.pages[pageNode.id] = {
+        name: pageNode.name,
+      };
+
+      const testGroupFrame = Page.findTestsGroupFrame(pageNode);
+      if (testGroupFrame !== null) {
+        stateObject.pages[pageNode.id].testGroupNodeId = testGroupFrame.id;
+        stateObject.pages[pageNode.id].testGroup = new TestGroup(
+          testGroupFrame.id,
+          this
+        );
+      }
+    });
+
+    this.state = stateObject;
   }
 
   async initialize() {
     await figma.loadFontAsync(Mendelsohn.DEFAULT_FONT);
     await figma.loadFontAsync(Mendelsohn.BOLD_FONT);
-    this.showUi();
-    Mendelsohn.postCurrentState();
-    const initialView = Mendelsohn.pageHasTests ? "test-list" : "create-tests";
 
+    this.showUi();
+
+    this.sendStateToUi();
+
+    const initialView = Mendelsohn.pageHasTests ? "test-list" : "create-tests";
     Mendelsohn.changeUiView(initialView);
 
     figma.on("selectionchange", () => {
@@ -229,7 +291,7 @@ export class Mendelsohn {
     });
 
     figma.on("currentpagechange", () => {
-      Mendelsohn.postCurrentState();
+      this.sendStateToUi();
       const initialView = Mendelsohn.pageHasTests
         ? "test-list"
         : "create-tests";

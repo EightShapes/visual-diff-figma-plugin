@@ -144,8 +144,9 @@ export class TestWrapper {
     return newFrame;
   };
 
-  constructor(testFrameId) {
+  constructor(testFrameId, mendelsohnInstance) {
     this.frame = figma.getNodeById(testFrameId); // TODO: Research the arbitrary assignment of instance properties, is this valid?
+    this.mendelsohn = mendelsohnInstance;
   }
 
   get imageWrapper() {
@@ -294,8 +295,7 @@ export class TestWrapper {
   saveNewBasline() {
     this.updateBaseline();
     this.resetTestStatus();
-    this.postTestDetailUpdate();
-    Mendelsohn.postCurrentState();
+    this.mendelsohn.sendStateToUi();
   }
 
   removeTestPlaceholderText() {
@@ -561,24 +561,16 @@ export class TestWrapper {
       );
     }
 
-    this.postTestDetailUpdate();
-    Mendelsohn.postCurrentState();
-  }
-
-  postTestDetailUpdate() {
-    figma.ui.postMessage({
-      type: "test-detail-update",
-      data: this.serializedData,
-    });
+    this.mendelsohn.sendStateToUi();
   }
 
   async runTest() {
     // Check for origin existence
     if (this.originNodeMissing) {
       this.status = MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING;
-      this.postTestDetailUpdate();
-      Mendelsohn.postCurrentState();
+      this.mendelsohn.sendStateToUi();
     } else {
+      console.log("ACTUALLY RUN");
       const testFrameUpdateSuccessful = await this.updateTestFrame();
 
       if (testFrameUpdateSuccessful) {
@@ -638,8 +630,7 @@ export class TestWrapper {
           diffAlt2Image,
         ];
 
-        this.postTestDetailUpdate();
-        Mendelsohn.postCurrentState();
+        this.mendelsohn.sendStateToUi();
         this.setViewProportion(this.viewProportion);
       }
     }

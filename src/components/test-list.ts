@@ -159,22 +159,22 @@ class TestList extends MendelsohnMixins(LitElement) {
     }
   `;
 
-  @property({ type: Array })
-  testgroupframes = [];
+  @property({ type: Object })
+  tests = {};
 
   @property({ type: String })
   currentpageid;
 
-  render() {
-    const currentPage = this.testgroupframes.find((tgf) => {
-      return tgf.pageId === this.currentpageid;
-    });
-    const allTestIds = currentPage.tests.map((t) => t.id);
+  get testWrapperIds() {
+    return Object.keys(this.tests);
+  }
 
+  render() {
     return html`
       <div class="test-list">
         <ul>
-          ${currentPage.tests.map((test) => {
+          ${this.testWrapperIds.map((id) => {
+            const test = this.tests[id];
             let statusIcon;
             switch (test.status) {
               case "pass":
@@ -254,7 +254,7 @@ class TestList extends MendelsohnMixins(LitElement) {
             <button
               class="primary"
               @click=${() => {
-                this._requestTests(allTestIds);
+                this._requestTests(this.testWrapperIds);
               }}
             >
               ${unsafeSVG(MendelsohnIcons.play)}&nbsp;Compare All

@@ -29,8 +29,8 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
   @property({ type: Array })
   currentselection = [];
 
-  @property({ type: Array })
-  testgroupframes = [];
+  @property({ type: Object })
+  tests = {};
 
   @property({ type: Object })
   activetestwrapper = {};
@@ -45,7 +45,7 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
       case "create-tests":
         viewOutput = html`<create-tests
           currentselection=${JSON.stringify(this.currentselection)}
-          testgroupframes=${JSON.stringify(this.testgroupframes)}
+          tests=${JSON.stringify(this.tests)}
           ?pagehastests=${this.pagehastests}
           currentpageid=${this.currentpageid}
         ></create-tests>`;
@@ -53,7 +53,7 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
       case "test-list":
         viewOutput = html` <test-list
           currentselection=${JSON.stringify(this.currentselection)}
-          testgroupframes=${JSON.stringify(this.testgroupframes)}
+          tests=${JSON.stringify(this.tests)}
           ?pagehastests=${this.pagehastests}
           currentpageid=${this.currentpageid}
         ></test-list>`;
@@ -102,16 +102,7 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
   private _changeViewListener(e: CustomEvent) {
     const newView = e.detail.newView;
     if (newView === "test-detail") {
-      this.activetestwrapper.id = e.detail.test.id; // Brittle & weird, have to set this so the switch statement in ui-scripts.js will update the test data
-      window.parent.postMessage(
-        {
-          pluginMessage: {
-            type: "request-test-detail-data",
-            data: { testFrameId: e.detail.test.id },
-          },
-        },
-        "*"
-      );
+      this.activetestwrapper = e.detail.test;
     }
     this.view = newView;
   }

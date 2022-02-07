@@ -1,8 +1,10 @@
 import { TestWrapper } from "./TestWrapper";
 
 export class TestGroup {
-  constructor(nodeId) {
+  constructor(nodeId, mendelsohnInstance) {
     this.frame = figma.getNodeById(nodeId) as FrameNode;
+    this.mendelsohn = mendelsohnInstance;
+    this.initializeState(mendelsohnInstance);
   }
 
   get pageName() {
@@ -13,21 +15,53 @@ export class TestGroup {
     return this.frame.parent.id;
   }
 
-  get tests() {
+  get testNodes() {
     return this.frame.findChildren(
       (child) => child.getPluginData(TestWrapper.TEST_WRAPPER_KEY) === "true"
     );
   }
 
-  get serializedData() {
-    return {
-      pageName: this.pageName,
-      pageId: this.pageId,
-      tests: this.tests.map((t) => {
-        const test = new TestWrapper(t.id);
-        return test.serializedData;
-      }),
+  get state() {
+    return this._state;
+  }
+
+  set state(stateObject) {
+    this._state = stateObject;
+  }
+
+  get testIds() {
+    return Object.keys(this.state.tests);
+  }
+
+  get serializedTests() {
+    const tests = {};
+    this.testIds.forEach((id) => {
+      tests[id] = this.state.tests[id].serializedData;
+    });
+
+    return tests;
+  }
+
+  getTestById(id) {
+    let test = null;
+
+    if (this.testIds.includes(id)) {
+      test = this.state.tests[id];
+    }
+
+    return test;
+  }
+
+  initializeState(mendelsohnInstance) {
+    const stateObject = {
+      tests: {},
     };
+
+    this.testNodes.forEach((node) => {
+      stateObject.tests[node.id] = new TestWrapper(node.id, mendelsohnInstance);
+    });
+
+    this.state = stateObject;
   }
 
   testExistsForOriginNode(originNodeId) {
@@ -47,6 +81,8 @@ export class TestGroup {
         );
         this.frame.appendChild(testWrapperFrame);
         const testWrapper = new TestWrapper(testWrapperFrame.id);
+
+        // TODO: Need to save this new test wrapper to state
         testWrapper.initialize();
         newTestFrames.push(testWrapperFrame);
       } else {

@@ -113,8 +113,8 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     }
   `;
 
-  @property({ type: Array })
-  testgroupframes = [];
+  @property({ type: Object })
+  tests = {};
 
   @property({ type: Array })
   currentselection = [];
@@ -138,8 +138,12 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     return tests;
   }
 
+  get testWrapperIds() {
+    return Object.keys(this.tests);
+  }
+
   get currentPageTestNodeIds() {
-    return this.currentPageTests.map((t) => t.originNodeId);
+    return this.testWrapperIds.map((id) => this.tests[id].originNodeId);
   }
 
   get existingSnapshotNodes() {

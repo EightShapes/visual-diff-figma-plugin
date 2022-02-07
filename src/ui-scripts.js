@@ -25,16 +25,26 @@ onmessage = async (message) => {
       break;
     case "state-update":
       const currentState = message.data.pluginMessage.data;
-      viewportManager.pagehastests = currentState.pageHasTests;
-      viewportManager.testgroupframes = currentState.testGroups;
+      const pageHasTests =
+        currentState.state.pages[currentState.currentPageId].testGroupNodeId !==
+        undefined;
+      viewportManager.pagehastests = pageHasTests;
+      viewportManager.tests =
+        currentState.state.pages[currentState.currentPageId].tests;
       viewportManager.currentselection = currentState.currentSelection;
       viewportManager.currentpageid = currentState.currentPageId;
+      const activeTestWrapperId = viewportManager.activetestwrapper.id;
+      const newActiveTestWrapperData =
+        currentState.state.pages[currentState.currentPageId].tests[
+          activeTestWrapperId
+        ];
+      viewportManager.activetestwrapper = newActiveTestWrapperData;
       break;
     case "current-selection-changed":
       viewportManager.currentselection = message.data.pluginMessage.data;
       break;
     case "test-group-frames-update":
-      viewportManager.testgroupframes = message.data.pluginMessage.data;
+      viewportManager.tests = message.data.pluginMessage.data;
       break;
     case "test-detail-update":
       const testData = message.data.pluginMessage.data;
