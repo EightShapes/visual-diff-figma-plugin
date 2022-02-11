@@ -93,7 +93,7 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     }
 
     .footer button.primary {
-      background: #18a0fb;
+      background: ${unsafeCSS(MendelsohnConstants.PRIMARY_CTA_HEX)};
       border: 0;
       color: white;
     }
@@ -259,7 +259,14 @@ class CreateTests extends MendelsohnMixins(LitElement) {
           : ""}
       </div>
       <div class="footer">
-        <m-button variant="link"> Take a tour </m-button>
+        <m-button
+          variant="link"
+          @click=${() => {
+            this._changeView("intro-tour");
+          }}
+        >
+          Take a tour
+        </m-button>
         ${snapshotableNodeCount > 0
           ? html` <button
               @click=${this._createTestsFromSelection}

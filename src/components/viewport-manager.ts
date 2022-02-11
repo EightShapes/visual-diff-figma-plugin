@@ -4,6 +4,7 @@ import { MendelsohnMixins } from "./mendelsohn-mixins";
 import "./test-list";
 import "./test-detail";
 import "./create-tests";
+import "./intro-tour";
 import { MendelsohnConstants } from "../MendelsohnConstants";
 
 @customElement("viewport-manager")
@@ -44,7 +45,12 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
   render() {
     let viewOutput;
 
+    console.log(this.view);
+
     switch (this.view) {
+      case "intro-tour":
+        viewOutput = html`<intro-tour></intro-tour>`;
+        break;
       case "create-tests":
         viewOutput = html`<create-tests
           currentselection=${JSON.stringify(this.currentselection)}

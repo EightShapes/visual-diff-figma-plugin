@@ -110,6 +110,7 @@ export class Mendelsohn {
   }
 
   handleCurrentSelectionChange() {
+    console.log("SELECTION CHANGE");
     // Inspect current selection, if it's a single item and it's part of a TestWrapper, send a message to the ui to show controls for that test wrapper
     this.sendStateToUi(); // Update state, in case something has changed on the canvas
     if (
@@ -299,6 +300,7 @@ export class Mendelsohn {
     });
 
     figma.on("currentpagechange", () => {
+      console.log("PAGE CHANGE");
       this.sendStateToUi();
       const initialView = this.pageHasTests ? "test-list" : "create-tests";
 

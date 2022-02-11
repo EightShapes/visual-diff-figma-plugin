@@ -54,7 +54,7 @@ onmessage = async (message) => {
         }
       }
 
-      if (!pageHasTests) {
+      if (!pageHasTests && !viewportManager.view === "intro-tour") {
         viewportManager.view = "create-tests";
       }
 
