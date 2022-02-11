@@ -3,10 +3,26 @@ import { Mendelsohn } from "../figmaClasses/Mendelsohn";
 export const MendelsohnMixins = (superClass) =>
   class extends superClass {
     /* class fields & methods to extend superClass with */
-    private _changeView(newView) {
+    private _changeView(newView, test) {
+      window.parent.postMessage(
+        {
+          pluginMessage: {
+            type: "refresh-data-from-canvas",
+          },
+        },
+        "*"
+      ); // whenever the plugin view changes, request fresh data from the canvas
+
+      const eventDetail = { newView };
+
+      // If the newView to be shown is the test detail page, pass the test object with the event
+      if (newView === "test-detail") {
+        eventDetail.test = test;
+      }
+
       this.dispatchEvent(
         new CustomEvent("changeview", {
-          detail: { newView },
+          detail: eventDetail,
           bubbles: true,
           composed: true,
         })
@@ -27,7 +43,6 @@ export const MendelsohnMixins = (superClass) =>
     }
 
     private async _requestSaveNewSnapshots(testIds) {
-      console.log("SAVE A NEW SNAPSHOT REQUEST!");
       window.parent.postMessage(
         {
           pluginMessage: {

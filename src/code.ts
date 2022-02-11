@@ -41,7 +41,7 @@ figma.ui.on("message", (message) => {
     test.delete();
   }
 
-  if (message.type === "request-test-detail-data") {
+  if (message.type === "refresh-data-from-canvas") {
     mendelsohn.sendStateToUi();
   }
 

@@ -579,7 +579,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       this.diffStrobe = true;
       this.diffStrobeInterval = setInterval(() => {
         this.diffImageStrobeIndex =
-          this.diffImageStrobeIndex > 2 ? 1 : this.diffImageStrobeIndex + 1; // TODO: This is the part that isn't working
+          this.diffImageStrobeIndex > 2 ? 1 : this.diffImageStrobeIndex + 1;
         window.parent.postMessage(
           {
             pluginMessage: {

@@ -56,16 +56,13 @@ export class Baseline {
     return baselineFrameWrapper;
   }
 
-  constructor(baselineFrameId) {
+  constructor(baselineFrameId, testWrapper) {
     this.frame = figma.getNodeById(baselineFrameId);
+    this.testWrapper = testWrapper;
   }
 
   get testWrapperNode() {
     return this.frame.parent.parent.parent;
-  }
-
-  get testWrapper() {
-    return new TestWrapper(this.testWrapperNode.id);
   }
 
   get originNode() {

@@ -34,11 +34,13 @@ onmessage = async (message) => {
       viewportManager.currentselection = currentState.currentSelection;
       viewportManager.currentpageid = currentState.currentPageId;
       const activeTestWrapperId = viewportManager.activetestwrapper.id;
-      const newActiveTestWrapperData =
-        currentState.state.pages[currentState.currentPageId].tests[
-          activeTestWrapperId
-        ];
-      viewportManager.activetestwrapper = newActiveTestWrapperData;
+      if (activeTestWrapperId !== undefined) {
+        const newActiveTestWrapperData =
+          currentState.state.pages[currentState.currentPageId].tests[
+            activeTestWrapperId
+          ];
+        viewportManager.activetestwrapper = newActiveTestWrapperData;
+      }
       break;
     case "current-selection-changed":
       viewportManager.currentselection = message.data.pluginMessage.data;

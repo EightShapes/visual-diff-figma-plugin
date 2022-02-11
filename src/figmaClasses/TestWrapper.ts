@@ -288,7 +288,7 @@ export class TestWrapper {
       );
       this.imageWrapper.appendChild(baselineFrameWrapper);
     }
-    const baseline = new Baseline(this.baselineFrame.id);
+    const baseline = new Baseline(this.baselineFrame.id, this); // TODO: Should only create a new baseline if the object doesn't already exist
     baseline.update();
   }
 
@@ -570,7 +570,6 @@ export class TestWrapper {
       this.status = MendelsohnConstants.STATUS_ORIGIN_NODE_MISSING;
       this.mendelsohn.sendStateToUi();
     } else {
-      console.log("ACTUALLY RUN");
       const testFrameUpdateSuccessful = await this.updateTestFrame();
 
       if (testFrameUpdateSuccessful) {

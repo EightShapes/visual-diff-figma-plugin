@@ -58,7 +58,9 @@ export class TestGroup {
     };
 
     this.testNodes.forEach((node) => {
-      stateObject.tests[node.id] = new TestWrapper(node.id, mendelsohnInstance);
+      stateObject.tests[node.id] =
+        stateObject.tests[node.id] ||
+        new TestWrapper(node.id, mendelsohnInstance);
     });
 
     this.state = stateObject;
@@ -82,7 +84,6 @@ export class TestGroup {
         this.frame.appendChild(testWrapperFrame);
         const testWrapper = new TestWrapper(testWrapperFrame.id);
 
-        // TODO: Need to save this new test wrapper to state
         testWrapper.initialize();
         newTestFrames.push(testWrapperFrame);
       } else {

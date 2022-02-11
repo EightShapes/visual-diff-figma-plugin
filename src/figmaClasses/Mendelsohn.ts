@@ -86,12 +86,12 @@ export class Mendelsohn {
   }
 
   static get pageHasTests() {
-    return Page.findTestsGroupFrame(figma.currentPage) !== null;
+    return Page.findTestsGroupFrame(figma.currentPage) !== undefined;
   }
 
   getTestWrapperForNode(node) {
     if (node.getPluginData(TestWrapper.TEST_WRAPPER_KEY) === "true") {
-      return node;
+      return this.getTestById(node.id);
     } else if (node.parent !== null) {
       return this.getTestWrapperForNode(node.parent);
     } else {
@@ -101,6 +101,7 @@ export class Mendelsohn {
 
   handleCurrentSelectionChange() {
     // Inspect current selection, if it's a single item and it's part of a TestWrapper, send a message to the ui to show controls for that test wrapper
+    this.sendStateToUi(); // Update state, in case something has changed on the canvas
     if (
       figma.currentPage.selection.length === 1 &&
       this.getTestWrapperForNode(figma.currentPage.selection[0]) !== null
@@ -118,10 +119,9 @@ export class Mendelsohn {
   sendActiveTestWrapperChange(testWrapper) {
     // Serialize the test wrapper
     // Post the message to the UI
-    const testWrapperObject = new TestWrapper(testWrapper.id);
     figma.ui.postMessage({
       type: "active-test-wrapper-changed",
-      data: testWrapperObject.serializedData,
+      data: testWrapper.serializedData,
     });
   }
 
@@ -158,14 +158,14 @@ export class Mendelsohn {
 
   async createTestsForNodes(originNodeIds) {
     const originNodes = originNodeIds.map((id) => figma.getNodeById(id));
-    const testGroupFrame = Page.findOrCreateTestsGroupFrame(figma.currentPage);
-    const testGroup = new TestGroup(testGroupFrame.id, this); // TODO: Should look this up in state, not create a new one
-    // TODO: If a truly new group is created, it needs to be saved to state
+    Page.findOrCreateTestsGroupFrame(figma.currentPage);
+    this.scrapeCurrentPageState(); // Add the new test group to state
+    const testGroup = this.state.pages[figma.currentPage.id].testGroup;
     const newTestFrames = await testGroup.createNewTests(
       originNodes.map((node) => node.id)
     );
     figma.viewport.scrollAndZoomIntoView(newTestFrames);
-    this.sendStateToUi();
+    this.sendStateToUi(); // This will scrape the canvas and update the state, adding the new tests to state
     Mendelsohn.changeUiView("test-list");
   }
 
@@ -239,7 +239,7 @@ export class Mendelsohn {
   }
 
   sendStateToUi() {
-    this.scrapeStateFromCanvas();
+    this.scrapeCurrentPageState();
 
     figma.ui.postMessage({
       type: "state-update",
@@ -251,26 +251,26 @@ export class Mendelsohn {
     });
   }
 
-  scrapeStateFromCanvas() {
-    const stateObject = {
+  scrapeCurrentPageState() {
+    const stateObject = this.state || {
       pages: {},
     };
 
     // Scan all pages find test wrappers create objects and save the state
-    figma.root.children.forEach((pageNode) => {
-      stateObject.pages[pageNode.id] = {
-        name: pageNode.name,
-      };
+    // TODO: Need to scrape only the current page, this is tanking the startup of the plugin
+    // TODO: May need to hold off on this completely until the plugin UI is active, or make it async
+    const currentPageId = figma.currentPage.id;
+    stateObject.pages[currentPageId] = {
+      name: figma.currentPage.name,
+    };
 
-      const testGroupFrame = Page.findTestsGroupFrame(pageNode);
-      if (testGroupFrame !== null) {
-        stateObject.pages[pageNode.id].testGroupNodeId = testGroupFrame.id;
-        stateObject.pages[pageNode.id].testGroup = new TestGroup(
-          testGroupFrame.id,
-          this
-        );
-      }
-    });
+    const testGroupFrame = Page.findTestsGroupFrame(figma.currentPage);
+    if (testGroupFrame !== undefined) {
+      stateObject.pages[currentPageId].testGroupNodeId = testGroupFrame.id;
+      stateObject.pages[currentPageId].testGroup =
+        stateObject.pages[currentPageId].testGroup || // May need to do a testGroup.updateState() or something
+        new TestGroup(testGroupFrame.id, this);
+    }
 
     this.state = stateObject;
   }
@@ -300,3 +300,5 @@ export class Mendelsohn {
     });
   }
 }
+
+// TODO: Handle Manual test deletion on the canvas better. Currently the state updates, but it throws errors as it does so.

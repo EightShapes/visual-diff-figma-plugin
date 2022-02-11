@@ -2,9 +2,13 @@ import { Mendelsohn } from "./Mendelsohn";
 
 export class Page {
   static findTestsGroupFrame(pageNode) {
-    return pageNode.findOne((fNode) =>
-      fNode.getPluginData(Mendelsohn.ALL_TESTS_FRAME_KEY)
+    const frameNodes = pageNode.children.filter(
+      (fNode) => fNode.type === "FRAME"
     );
+
+    return frameNodes.find((fNode) => {
+      return fNode.getPluginData(Mendelsohn.ALL_TESTS_FRAME_KEY);
+    });
   }
 
   static copyChildren(children) {
@@ -63,7 +67,7 @@ export class Page {
 
   static findOrCreateTestsGroupFrame(pageNode) {
     let testsGroupFrame = Page.findTestsGroupFrame(pageNode);
-    if (testsGroupFrame === null) {
+    if (testsGroupFrame === undefined) {
       testsGroupFrame = this.createTestsGroupFrame(pageNode);
     }
 

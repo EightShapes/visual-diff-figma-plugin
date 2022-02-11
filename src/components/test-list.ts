@@ -166,7 +166,7 @@ class TestList extends MendelsohnMixins(LitElement) {
   currentpageid;
 
   get testWrapperIds() {
-    return Object.keys(this.tests);
+    return this.tests === null ? [] : Object.keys(this.tests);
   }
 
   render() {
@@ -266,12 +266,6 @@ class TestList extends MendelsohnMixins(LitElement) {
   }
 
   private _showTestDetail(test) {
-    this.dispatchEvent(
-      new CustomEvent("changeview", {
-        detail: { newView: "test-detail", test },
-        bubbles: true,
-        composed: true,
-      })
-    );
+    this._changeView("test-detail", test);
   }
 }

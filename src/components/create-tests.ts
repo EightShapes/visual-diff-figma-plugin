@@ -139,7 +139,7 @@ class CreateTests extends MendelsohnMixins(LitElement) {
   }
 
   get testWrapperIds() {
-    return Object.keys(this.tests);
+    return this.tests === null ? [] : Object.keys(this.tests);
   }
 
   get currentPageTestNodeIds() {
