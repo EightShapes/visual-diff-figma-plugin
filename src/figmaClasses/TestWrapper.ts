@@ -266,8 +266,7 @@ export class TestWrapper {
   delete() {
     // Delete the test
     this.frame.remove();
-    Mendelsohn.postCurrentState();
-    Mendelsohn.changeUiView("test-list");
+    this.mendelsohn.sendStateToUi();
   }
 
   showImageTooLargeError(snapshotType) {
