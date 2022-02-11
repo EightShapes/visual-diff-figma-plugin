@@ -414,7 +414,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
         </div>
       </form>
       <div class="disco-mode-form">
-        <label class="result-label">Disco Mode</label>
+        <label class="result-label">Party Mode</label>
         <button
           @click=${(e) => {
             e.preventDefault();
