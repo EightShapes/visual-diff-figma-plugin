@@ -111,6 +111,10 @@ class CreateTests extends MendelsohnMixins(LitElement) {
     .oversized-nodes-helper-text {
       color: ${unsafeCSS(MendelsohnConstants.SECONDARY_TEXT_COLOR_HEX)};
     }
+
+    .test-group-selected {
+      color: ${unsafeCSS(MendelsohnConstants.ERROR_COLOR_HEX)};
+    }
   `;
 
   @property({ type: Object })
@@ -124,6 +128,9 @@ class CreateTests extends MendelsohnMixins(LitElement) {
 
   @property({ type: String })
   currentpageid;
+
+  @property({ type: String })
+  currenttestgroupid;
 
   get currentPageTests() {
     let tests = [];
@@ -144,6 +151,13 @@ class CreateTests extends MendelsohnMixins(LitElement) {
 
   get currentPageTestNodeIds() {
     return this.testWrapperIds.map((id) => this.tests[id].originNodeId);
+  }
+
+  get testGroupSelected() {
+    return (
+      this.currentselection.filter((n) => this.currenttestgroupid === n.id)
+        .length > 0
+    );
   }
 
   get existingSnapshotNodes() {
@@ -167,7 +181,9 @@ class CreateTests extends MendelsohnMixins(LitElement) {
 
   get snapshotableNodes() {
     const nodes = this.nodesWithoutExistingSnapshot.filter((n) => {
-      return n.height < 4096 && n.width < 4096;
+      return (
+        n.height < 4096 && n.width < 4096 && n.id !== this.currenttestgroupid
+      );
     });
     return nodes;
   }
@@ -211,6 +227,14 @@ class CreateTests extends MendelsohnMixins(LitElement) {
               <span class="nodes-count">${this.currentselection.length}</span>
               selected ${itemPlural}
             </p>`
+          : ""}
+        ${this.testGroupSelected
+          ? html`
+              <p class="test-group-selected">
+                One of the selected items is the All Snapshots frame. You cannot
+                create a snapshot of this frame.
+              </p>
+            `
           : ""}
         ${this.oversizedNodes.length > 0
           ? html`<p class="oversized-nodes">

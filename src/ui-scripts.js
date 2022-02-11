@@ -25,22 +25,39 @@ onmessage = async (message) => {
       break;
     case "state-update":
       const currentState = message.data.pluginMessage.data;
-      const pageHasTests =
-        currentState.state.pages[currentState.currentPageId].testGroupNodeId !==
-        undefined;
+      const pageHasTests = message.data.pluginMessage.data.pageHasTests;
       viewportManager.pagehastests = pageHasTests;
       viewportManager.tests =
         currentState.state.pages[currentState.currentPageId].tests;
       viewportManager.currentselection = currentState.currentSelection;
       viewportManager.currentpageid = currentState.currentPageId;
-      const activeTestWrapperId = viewportManager.activetestwrapper.id;
-      if (activeTestWrapperId !== undefined) {
+      viewportManager.currenttestgroupid =
+        currentState.state.pages[currentState.currentPageId].testGroupNodeId;
+
+      const activeTestWrapperId =
+        viewportManager.activetestwrapper === undefined
+          ? undefined
+          : viewportManager.activetestwrapper.id;
+      if (pageHasTests && activeTestWrapperId !== undefined) {
         const newActiveTestWrapperData =
           currentState.state.pages[currentState.currentPageId].tests[
             activeTestWrapperId
           ];
-        viewportManager.activetestwrapper = newActiveTestWrapperData;
+
+        if (
+          newActiveTestWrapperData === undefined &&
+          viewportManager.view === "test-detail"
+        ) {
+          viewportManager.view = "test-list";
+        } else {
+          viewportManager.activetestwrapper = newActiveTestWrapperData;
+        }
       }
+
+      if (!pageHasTests) {
+        viewportManager.view = "create-tests";
+      }
+
       break;
     case "current-selection-changed":
       viewportManager.currentselection = message.data.pluginMessage.data;

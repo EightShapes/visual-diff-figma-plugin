@@ -48,7 +48,7 @@ export class Page {
       pageNode.appendChild(pageNode);
     }
 
-    testsGroupFrame.name = "All Tests";
+    testsGroupFrame.name = "All Snapshots";
     testsGroupFrame.setPluginData(Mendelsohn.ALL_TESTS_FRAME_KEY, "true");
     testsGroupFrame.layoutMode = "HORIZONTAL";
     testsGroupFrame.primaryAxisSizingMode = "AUTO";

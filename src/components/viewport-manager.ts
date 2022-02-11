@@ -38,6 +38,9 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
   @property({ type: String })
   currentpageid;
 
+  @property({ type: String })
+  currenttestgroupid;
+
   render() {
     let viewOutput;
 
@@ -48,6 +51,7 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
           tests=${JSON.stringify(this.tests)}
           ?pagehastests=${this.pagehastests}
           currentpageid=${this.currentpageid}
+          currenttestgroupid=${this.currenttestgroupid}
         ></create-tests>`;
         break;
       case "test-list":

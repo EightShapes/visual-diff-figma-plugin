@@ -85,8 +85,18 @@ export class Mendelsohn {
     });
   }
 
-  static get pageHasTests() {
-    return Page.findTestsGroupFrame(figma.currentPage) !== undefined;
+  get pageHasTests() {
+    if (
+      this.state === undefined ||
+      this.state.pages[figma.currentPage.id] === undefined ||
+      this.state.pages[figma.currentPage.id].testGroup === undefined
+    ) {
+      return false;
+    } else {
+      return (
+        this.state.pages[figma.currentPage.id].testGroup.testNodes.length > 0
+      );
+    }
   }
 
   getTestWrapperForNode(node) {
@@ -246,6 +256,7 @@ export class Mendelsohn {
       data: {
         currentPageId: figma.currentPage.id,
         currentSelection: this.currentSelectionSerialized,
+        pageHasTests: this.pageHasTests, // weird that this is a static method
         state: this.serializedState,
       },
     });
@@ -256,9 +267,7 @@ export class Mendelsohn {
       pages: {},
     };
 
-    // Scan all pages find test wrappers create objects and save the state
-    // TODO: Need to scrape only the current page, this is tanking the startup of the plugin
-    // TODO: May need to hold off on this completely until the plugin UI is active, or make it async
+    // Search current page for test wrappers and add them to state if not already there.
     const currentPageId = figma.currentPage.id;
     stateObject.pages[currentPageId] = {
       name: figma.currentPage.name,
@@ -280,10 +289,9 @@ export class Mendelsohn {
     await figma.loadFontAsync(Mendelsohn.BOLD_FONT);
 
     this.showUi();
-
     this.sendStateToUi();
 
-    const initialView = Mendelsohn.pageHasTests ? "test-list" : "create-tests";
+    const initialView = this.pageHasTests ? "test-list" : "create-tests";
     Mendelsohn.changeUiView(initialView);
 
     figma.on("selectionchange", () => {
@@ -292,9 +300,7 @@ export class Mendelsohn {
 
     figma.on("currentpagechange", () => {
       this.sendStateToUi();
-      const initialView = Mendelsohn.pageHasTests
-        ? "test-list"
-        : "create-tests";
+      const initialView = this.pageHasTests ? "test-list" : "create-tests";
 
       Mendelsohn.changeUiView(initialView);
     });
