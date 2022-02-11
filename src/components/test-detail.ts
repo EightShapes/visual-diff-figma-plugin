@@ -1,5 +1,5 @@
 import { LitElement, html, css, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { MendelsohnMixins } from "./mendelsohn-mixins";
 import { LanguageConstants } from "../LanguageConstants";
 import "./m-button";
@@ -141,10 +141,15 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       margin-right: 0;
     }
 
+    .disco-mode-form,
     .display-mode-form {
       display: flex;
       align-items: flex-start;
       padding: 12px;
+    }
+
+    .disco-mode-form {
+      align-items: center;
     }
 
     .update-snapshot-form {
@@ -153,6 +158,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       margin: 0;
     }
 
+    .disco-mode-form button,
     .update-snapshot-form button {
       background: none;
       padding: 7px 12px;
@@ -325,10 +331,12 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   @property({ type: Boolean })
   running = false;
 
+  @state()
+  protected _diffStrobe = false;
+
   constructor() {
     super();
     this.displayModeSliderDragging = false;
-    this.diffStrobe = false;
     this.diffStrobeInterval;
     this.diffImageStrobeIndex = 1;
   }
@@ -404,15 +412,18 @@ class TestDetail extends MendelsohnMixins(LitElement) {
             <span class="range-slider-wrap-max">100%</span>
           </div>
         </div>
+      </form>
+      <div class="disco-mode-form">
+        <label class="result-label">Disco Mode</label>
         <button
           @click=${(e) => {
             e.preventDefault();
-            this._toggleDiffStrobe([this.id]);
+            this._toggleDiffStrobe(this.id);
           }}
         >
-          Strobe Diff
+          ${this._diffStrobe === true ? "Disable" : "Enable"}
         </button>
-      </form>
+      </div>
     `;
   }
 
@@ -556,7 +567,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   }
 
   private _cancelDiffStrobe(testFrameId) {
-    this.diffStrobe = false;
+    this._diffStrobe = false;
     clearInterval(this.diffStrobeInterval);
     // cancel the interval, send the message to reset the canvas
     window.parent.postMessage(
@@ -573,10 +584,10 @@ class TestDetail extends MendelsohnMixins(LitElement) {
   }
 
   private _toggleDiffStrobe(testFrameId) {
-    if (this.diffStrobe === true) {
+    if (this._diffStrobe === true) {
       this._cancelDiffStrobe(testFrameId);
     } else {
-      this.diffStrobe = true;
+      this._diffStrobe = true;
       this.diffStrobeInterval = setInterval(() => {
         this.diffImageStrobeIndex =
           this.diffImageStrobeIndex > 2 ? 1 : this.diffImageStrobeIndex + 1;
