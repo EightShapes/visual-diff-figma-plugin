@@ -17,3 +17,6 @@ Once the build is running, changes will be automatically watched and recompiled.
 
 ## Contributions
 Contributions are welcome. Please submit a pull request to this repo. That will notify the maintainers and we'll take a look.
+
+## Diff settings
+The default threshold for the plugin to detect a difference is currently `0.1`. Subtle changes may not be flagged, but this threshold prevents false diffs caused by text antialiasing.
