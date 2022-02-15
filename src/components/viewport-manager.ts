@@ -44,9 +44,6 @@ class ViewportManager extends MendelsohnMixins(LitElement) {
 
   render() {
     let viewOutput;
-
-    console.log(this.view);
-
     switch (this.view) {
       case "intro-tour":
         viewOutput = html`<intro-tour></intro-tour>`;

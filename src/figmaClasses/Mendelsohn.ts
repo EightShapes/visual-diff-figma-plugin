@@ -110,7 +110,6 @@ export class Mendelsohn {
   }
 
   handleCurrentSelectionChange() {
-    console.log("SELECTION CHANGE");
     // Inspect current selection, if it's a single item and it's part of a TestWrapper, send a message to the ui to show controls for that test wrapper
     this.sendStateToUi(); // Update state, in case something has changed on the canvas
     if (
@@ -198,8 +197,8 @@ export class Mendelsohn {
       if (test.frame !== null) {
         await test.runTest();
       } else {
-        figma.notify(`Test not found with id: ${testId}`, { error: true });
-        // TODO: Update the UI since the canvas changed and the test can't be found.
+        // Shouldn't be able to reach this branch anymore
+        figma.notify(`Snapshot not found with id: ${testId}`, { error: true });
       }
     }
     if (testIds.length > 1) {
@@ -300,7 +299,6 @@ export class Mendelsohn {
     });
 
     figma.on("currentpagechange", () => {
-      console.log("PAGE CHANGE");
       this.sendStateToUi();
       const initialView = this.pageHasTests ? "test-list" : "create-tests";
 
@@ -308,5 +306,3 @@ export class Mendelsohn {
     });
   }
 }
-
-// TODO: Handle Manual test deletion on the canvas better. Currently the state updates, but it throws errors as it does so.

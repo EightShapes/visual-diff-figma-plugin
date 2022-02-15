@@ -87,8 +87,9 @@ export class TestGroup {
         testWrapper.initialize();
         newTestFrames.push(testWrapperFrame);
       } else {
+        // Shouldn't be able to reach this branch anymore
         // A test already exists for this origin node, don't create one.
-        figma.notify(`A test already exists for node ID: ${originNodeId}`, {
+        figma.notify(`A snapshot already exists for node ID: ${originNodeId}`, {
           error: true,
         });
       }

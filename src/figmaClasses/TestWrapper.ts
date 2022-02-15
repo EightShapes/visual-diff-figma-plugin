@@ -145,7 +145,7 @@ export class TestWrapper {
   };
 
   constructor(testFrameId, mendelsohnInstance) {
-    this.frame = figma.getNodeById(testFrameId); // TODO: Research the arbitrary assignment of instance properties, is this valid?
+    this.frame = figma.getNodeById(testFrameId); // TODO: Research the arbitrary assignment of instance properties in Lit Element, is this valid?
     this.mendelsohn = mendelsohnInstance;
   }
 
