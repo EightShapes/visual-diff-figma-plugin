@@ -1,7 +1,7 @@
 {
-  "name": "mendelsohn",
+  "name": "visual-difference",
   "version": "1.0.0-beta.0",
-  "description": "Visual Diffing Plugin",
+  "description": "Capture component snapshots for visual regression",
   "main": "code.js",
   "scripts": {
     "start": "npm-run-all build-ui build-plugin-js watch-all",

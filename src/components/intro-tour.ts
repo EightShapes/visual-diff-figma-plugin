@@ -97,28 +97,28 @@ class IntroTour extends MendelsohnMixins(LitElement) {
       {
         title: "Create snapshots",
         copy: "Select one or more objects to create snapshots images you’ll to compare differences against later.",
-        imgsrc: "http://www.fillmurray.com/g/200/300",
+        imgsrc: MendelsohnConstants.TOUR_IMAGES.STEP_1,
       },
       {
         title: "Continue your work",
         copy: "Edit your work confident that snapshots remain available to compare against when the time is right.",
-        imgsrc: "http://www.fillmurray.com/g/500/500",
+        imgsrc: MendelsohnConstants.TOUR_IMAGES.STEP_2,
       },
       {
         title: "Run a comparison of edits to snapshots",
         copy: "Run differences to compare changes in each object against baseline shapshots.",
-        imgsrc: "http://www.fillmurray.com/g/400/600",
+        imgsrc: MendelsohnConstants.TOUR_IMAGES.STEP_3,
       },
       {
         title: "Inspect differences and adjust",
         copy: `Inspect each difference to see what has changed, if anything.<br/><br/>
         For unexpected differences, bounce between snapshots and original artwork to make updates, rerunning the comparison as needed.`,
-        imgsrc: "http://www.fillmurray.com/g/100/100",
+        imgsrc: MendelsohnConstants.TOUR_IMAGES.STEP_4,
       },
       {
         title: "Save a new snapshot",
         copy: `Once only expected differences remain, override the snapshot with the current state of the original artwork.`,
-        imgsrc: "http://www.fillmurray.com/g/300/700",
+        imgsrc: MendelsohnConstants.TOUR_IMAGES.STEP_5,
       },
     ];
   }

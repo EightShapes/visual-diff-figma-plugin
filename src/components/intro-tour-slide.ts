@@ -55,16 +55,6 @@ class IntroTour extends MendelsohnMixins(LitElement) {
       width: 100%;
     }
 
-    .image-wrapper button {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: transparent;
-      border: 0;
-      color: ${unsafeCSS(MendelsohnConstants.PRIMARY_CTA_HEX)};
-      cursor: pointer;
-    }
-
     .last-slide-button {
       background: ${unsafeCSS(MendelsohnConstants.PRIMARY_CTA_HEX)};
       padding: 7px 12px;
@@ -79,10 +69,20 @@ class IntroTour extends MendelsohnMixins(LitElement) {
       margin-left: 12px;
       margin-top: auto;
     }
+
+    .skip-tour-button {
+      background: transparent;
+      border: 0;
+      color: ${unsafeCSS(MendelsohnConstants.PRIMARY_CTA_HEX)};
+      cursor: pointer;
+      margin-top: auto;
+      margin-left: auto;
+      margin-right: 12px;
+    }
   `;
 
   @property()
-  imgsrc = "http://www.fillmurray.com/400/300";
+  imgsrc = MendelsohnConstants.TOUR_IMAGES.STEP_1;
 
   @property()
   title = "Slide Title";
@@ -101,15 +101,6 @@ class IntroTour extends MendelsohnMixins(LitElement) {
       <div class="intro-tour-slide ${this.visible ? "visible" : ""}">
         <div class="image-wrapper">
           <img src="${this.imgsrc}" alt="${this.title} Illustration" />
-          ${!this.lastslide
-            ? html`<button
-                @click=${() => {
-                  this._changeView("create-tests");
-                }}
-              >
-                Skip tour
-              </button>`
-            : ""}
         </div>
         <h2>${this.title}</h2>
 
@@ -124,7 +115,14 @@ class IntroTour extends MendelsohnMixins(LitElement) {
             >
               Get Started
             </button>`
-          : ""}
+          : html`<button
+              class="skip-tour-button"
+              @click=${() => {
+                this._changeView("create-tests");
+              }}
+            >
+              Skip tour
+            </button>`}
       </div>
     `;
   }
