@@ -100,7 +100,7 @@ class TestDetail extends MendelsohnMixins(LitElement) {
 
     .result-label {
       font-weight: bold;
-      width: 80px;
+      width: 60px;
     }
 
     .status-text {
@@ -139,17 +139,6 @@ class TestDetail extends MendelsohnMixins(LitElement) {
 
     .test-detail-actions > *:last-child {
       margin-right: 0;
-    }
-
-    .disco-mode-form,
-    .display-mode-form {
-      display: flex;
-      align-items: flex-start;
-      padding: 12px;
-    }
-
-    .disco-mode-form {
-      align-items: center;
     }
 
     .update-snapshot-form {
@@ -305,6 +294,32 @@ class TestDetail extends MendelsohnMixins(LitElement) {
       display: block;
       font-size: 11px;
     }
+
+    .display-mode-form {
+      padding: 12px 12px;
+      display: flex;
+      align-items: baseline;
+    }
+
+    .highlight-mode-toggle {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .highlight-mode-toggle button {
+      border: 0;
+      background: none;
+      cursor: pointer;
+      display: block;
+      padding: 4px;
+      border-radius: 2px;
+    }
+
+    .highlight-mode-toggle button.enabled {
+      background: #cfcfcf;
+    }
   `;
 
   @property()
@@ -395,35 +410,48 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     return html`
       <form class="display-mode-form" id="display-mode-form">
         <label class="result-label" for="proportion-slider">Highlight</label>
-        <div class="range-slider-wrap">
-          <input
-            type="range"
-            id="proportion-slider"
-            @mousedown=${this._initiateDisplayProportionChange}
-            @mouseup=${this._terminateDisplayProportionChange}
-            @mousemove=${this._handleDisplayProportionChange}
-            min="0"
-            max="1"
-            step="0.05"
-            value=${this.viewproportion}
-          />
-          <div class="range-slider-wrap-labels">
-            <span class="range-slider-wrap-min">0%</span>
-            <span class="range-slider-wrap-max">100%</span>
+        <div class="highlight-mode-wrap">
+          <div class="highlight-mode-toggle">
+            <button
+              @click=${(e) => {
+                e.preventDefault();
+                this._cancelDiffStrobe(this.id);
+              }}
+              class="${!this._diffStrobe ? "enabled" : ""}"
+            >
+              Diff Overlay
+            </button>
+            <button
+              @click=${(e) => {
+                e.preventDefault();
+                this._enableDiffStrobe(this.id);
+              }}
+              class="${this._diffStrobe ? "enabled" : ""}"
+            >
+              Party Mode
+            </button>
           </div>
+          ${this._diffStrobe
+            ? ""
+            : html`<div class="range-slider-wrap">
+                <input
+                  type="range"
+                  id="proportion-slider"
+                  @mousedown=${this._initiateDisplayProportionChange}
+                  @mouseup=${this._terminateDisplayProportionChange}
+                  @mousemove=${this._handleDisplayProportionChange}
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value=${this.viewproportion}
+                />
+                <div class="range-slider-wrap-labels">
+                  <span class="range-slider-wrap-min">0%</span>
+                  <span class="range-slider-wrap-max">100%</span>
+                </div>
+              </div>`}
         </div>
       </form>
-      <div class="disco-mode-form">
-        <label class="result-label">Party Mode</label>
-        <button
-          @click=${(e) => {
-            e.preventDefault();
-            this._toggleDiffStrobe(this.id);
-          }}
-        >
-          ${this._diffStrobe === true ? "Disable" : "Enable"}
-        </button>
-      </div>
     `;
   }
 
@@ -583,27 +611,31 @@ class TestDetail extends MendelsohnMixins(LitElement) {
     );
   }
 
+  private _enableDiffStrobe(testFrameId) {
+    this._diffStrobe = true;
+    this.diffStrobeInterval = setInterval(() => {
+      this.diffImageStrobeIndex =
+        this.diffImageStrobeIndex > 2 ? 1 : this.diffImageStrobeIndex + 1;
+      window.parent.postMessage(
+        {
+          pluginMessage: {
+            type: "show-diff-image",
+            data: {
+              diffImageStrobeIndex: this.diffImageStrobeIndex,
+              testFrameId,
+            },
+          },
+        },
+        "*"
+      );
+    }, MendelsohnConstants.DIFF_STROBE_SPEED);
+  }
+
   private _toggleDiffStrobe(testFrameId) {
     if (this._diffStrobe === true) {
       this._cancelDiffStrobe(testFrameId);
     } else {
-      this._diffStrobe = true;
-      this.diffStrobeInterval = setInterval(() => {
-        this.diffImageStrobeIndex =
-          this.diffImageStrobeIndex > 2 ? 1 : this.diffImageStrobeIndex + 1;
-        window.parent.postMessage(
-          {
-            pluginMessage: {
-              type: "show-diff-image",
-              data: {
-                diffImageStrobeIndex: this.diffImageStrobeIndex,
-                testFrameId,
-              },
-            },
-          },
-          "*"
-        );
-      }, MendelsohnConstants.DIFF_STROBE_SPEED);
+      this._enableDiffStrobe(testFrameId);
     }
   }
 
