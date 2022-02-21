@@ -94,7 +94,8 @@ export class Mendelsohn {
       return false;
     } else {
       return (
-        this.state.pages[figma.currentPage.id].testGroup.testNodes.length > 0
+        this.state.pages[figma.currentPage.id].testGroup.storedTestIds.length >
+        0
       );
     }
   }

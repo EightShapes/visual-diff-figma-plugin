@@ -15,7 +15,7 @@ export class TestGroup {
     return this.frame.parent.id;
   }
 
-  get testNodes() {
+  get childTestNodes() {
     return this.frame.findChildren(
       (child) => child.getPluginData(TestWrapper.TEST_WRAPPER_KEY) === "true"
     );
@@ -42,6 +42,19 @@ export class TestGroup {
     return tests;
   }
 
+  set storedTestIds(newTestIds) {
+    this.frame.setPluginData("GROUP-TEST-IDS", JSON.stringify(newTestIds));
+  }
+
+  get storedTestIds() {
+    const storedIds = this.frame.getPluginData("GROUP-TEST-IDS");
+    if (storedIds.length === 0) {
+      return [];
+    } else {
+      return JSON.parse(storedIds);
+    }
+  }
+
   getTestById(id) {
     let test = null;
 
@@ -57,12 +70,27 @@ export class TestGroup {
       tests: {},
     };
 
-    this.testNodes.forEach((node) => {
-      stateObject.tests[node.id] =
-        stateObject.tests[node.id] ||
-        new TestWrapper(node.id, mendelsohnInstance);
+    const storedTestIds = this.storedTestIds;
+
+    const canvasTestIds = this.childTestNodes.map((node) => node.id);
+
+    const mergedTestIds = [...storedTestIds, ...canvasTestIds];
+    const dedupedTestIds = Array.from(new Set(mergedTestIds));
+    let testIdsToStore = [...dedupedTestIds];
+
+    dedupedTestIds.forEach((id) => {
+      const node = figma.getNodeById(id);
+      if (node !== null) {
+        stateObject.tests[node.id] =
+          stateObject.tests[node.id] ||
+          new TestWrapper(node.id, mendelsohnInstance);
+      } else {
+        // Remove the testId
+        testIdsToStore = testIdsToStore.filter((storeId) => storeId !== id);
+      }
     });
 
+    this.storedTestIds = testIdsToStore;
     this.state = stateObject;
   }
 
